@@ -17,10 +17,10 @@ window.FT_CONFIG = {
   headline: 'One family, many branches',
 
   // Project Settings → Data API → Project URL, e.g. 'https://abcdefgh.supabase.co'
-  supabaseUrl: '',
+  supabaseUrl: 'https://bvlwcofqykcvxarwexrx.supabase.co',
 
-  // Project Settings → API Keys → anon / public
-  supabaseAnonKey: '',
+  // Project Settings → API Keys → anon / public (or "publishable" on newer projects)
+  supabaseAnonKey: 'sb_publishable_luMehkjTnSSEowMtfRYmYQ_5c6UX65w',
 
   // Fallback data, used when Supabase is not configured or unreachable.
   snapshotUrl: 'data/snapshot.json',
