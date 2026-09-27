@@ -1,0 +1,122 @@
+/* ───────────────────────────────────────────────────────────────
+   Design tokens. Two themes: "dark" (midnight + gold) and
+   "light" (heirloom paper). Everything else in app.css reads
+   only from these variables, so a new theme is just a new block.
+   ─────────────────────────────────────────────────────────────── */
+
+:root {
+  --serif: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
+  --sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+
+  --r-sm: 8px;
+  --r-md: 12px;
+  --r-lg: 18px;
+  --r-pill: 999px;
+
+  --ease: cubic-bezier(.2, .8, .2, 1);
+  --ease-back: cubic-bezier(.2, .9, .3, 1.4);
+
+  --topbar-h: 76px;
+}
+
+/* ─────────────── Dark: midnight + gold ─────────────── */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --bg:          #0a0e1a;
+  --bg-raised:   #111726;
+  --bg-sunken:   #070a13;
+  --bg-hover:    #1a2236;
+  --bg-input:    #0d1320;
+
+  --glass:       rgba(17, 23, 38, 0.72);
+  --glass-solid: rgba(13, 18, 31, 0.96);
+
+  --ink:       #e8e3d3;
+  --ink-dim:   #9a9583;
+  --ink-faint: #5d5951;
+
+  --accent:        #c9a961;
+  --accent-strong: #e8c97a;
+  --accent-deep:   #8a6f3a;
+  --accent-soft:   rgba(201, 169, 97, 0.14);
+  --accent-ink:    #0a0e1a;
+
+  --line:        rgba(232, 227, 211, 0.09);
+  --line-strong: rgba(232, 227, 211, 0.18);
+  --line-bold:   rgba(232, 227, 211, 0.3);
+
+  --danger:      #e07a5f;
+  --danger-soft: rgba(224, 122, 95, 0.14);
+  --ok:          #7fb89c;
+
+  --male:   rgba(135, 165, 200, 0.85);
+  --female: rgba(200, 145, 175, 0.85);
+
+  --shadow-sm: 0 4px 16px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 14px 44px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 24px 70px rgba(0, 0, 0, 0.6);
+
+  --particle: 232, 227, 211;
+  --particle-opacity: 1;
+  --grain-opacity: 0.012;
+
+  --aura:
+    radial-gradient(ellipse at 20% 25%, rgba(212, 165, 116, 0.09), transparent 55%),
+    radial-gradient(ellipse at 82% 72%, rgba(111, 163, 154, 0.07), transparent 55%),
+    radial-gradient(ellipse at 50% 50%, rgba(184, 122, 156, 0.05), transparent 62%);
+
+  --edge-line: rgba(232, 227, 211, 0.22);
+  --minimap-edge: rgba(232, 227, 211, 0.14);
+}
+
+/* ─────────────── Light: heirloom paper ─────────────── */
+:root[data-theme="light"] {
+  color-scheme: light;
+
+  --bg:          #f6f1e6;
+  --bg-raised:   #fffdf8;
+  --bg-sunken:   #ece5d6;
+  --bg-hover:    #f1ead9;
+  --bg-input:    #fffdf8;
+
+  --glass:       rgba(255, 253, 248, 0.82);
+  --glass-solid: rgba(255, 253, 248, 0.98);
+
+  --ink:       #2e2617;
+  --ink-dim:   #7a6c55;
+  --ink-faint: #a2947c;
+
+  --accent:        #96702c;
+  --accent-strong: #7a5a1f;
+  --accent-deep:   #bfa269;
+  --accent-soft:   rgba(150, 112, 44, 0.12);
+  --accent-ink:    #fffdf8;
+
+  --line:        rgba(46, 38, 23, 0.1);
+  --line-strong: rgba(46, 38, 23, 0.18);
+  --line-bold:   rgba(46, 38, 23, 0.32);
+
+  --danger:      #b4462a;
+  --danger-soft: rgba(180, 70, 42, 0.1);
+  --ok:          #3f7d5f;
+
+  --male:   rgba(70, 106, 150, 0.9);
+  --female: rgba(158, 84, 120, 0.9);
+
+  --shadow-sm: 0 3px 12px rgba(80, 62, 32, 0.1);
+  --shadow-md: 0 12px 34px rgba(80, 62, 32, 0.14);
+  --shadow-lg: 0 22px 56px rgba(80, 62, 32, 0.18);
+
+  --particle: 150, 112, 44;
+  --particle-opacity: 0.5;
+  --grain-opacity: 0.035;
+
+  --aura:
+    radial-gradient(ellipse at 18% 22%, rgba(190, 150, 90, 0.16), transparent 55%),
+    radial-gradient(ellipse at 84% 74%, rgba(120, 150, 140, 0.12), transparent 55%),
+    radial-gradient(ellipse at 50% 55%, rgba(170, 120, 145, 0.08), transparent 62%);
+
+  --edge-line: rgba(46, 38, 23, 0.26);
+  --minimap-edge: rgba(46, 38, 23, 0.18);
+}

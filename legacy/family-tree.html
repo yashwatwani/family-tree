@@ -1,0 +1,2943 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Our Families — A Living Graph</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0e1a;
+    --bg-2: #111726;
+    --bg-3: #1a2236;
+    --bg-4: #232b42;
+    --ink: #e8e3d3;
+    --ink-dim: #9a9583;
+    --ink-low: #56524a;
+    --gold: #c9a961;
+    --gold-bright: #e8c97a;
+    --gold-deep: #8a6f3a;
+    --watwani: #d4a574;
+    --watwani-dim: #8b6d4f;
+    --watwani-glow: rgba(212, 165, 116, 0.4);
+    --sidhwani: #b87a9c;
+    --sidhwani-dim: #7a4f63;
+    --sidhwani-glow: rgba(184, 122, 156, 0.4);
+    --makrani: #6fa39a;
+    --makrani-dim: #45685f;
+    --makrani-glow: rgba(111, 163, 154, 0.4);
+    --line: rgba(232, 227, 211, 0.08);
+    --line-2: rgba(232, 227, 211, 0.15);
+    --line-3: rgba(232, 227, 211, 0.25);
+    --serif: 'Cormorant Garamond', Georgia, serif;
+    --sans: 'Inter', -apple-system, sans-serif;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body {
+    height: 100%; overflow: hidden;
+    background: var(--bg); color: var(--ink);
+    font-family: var(--sans); font-weight: 300;
+    -webkit-font-smoothing: antialiased;
+  }
+  body::before {
+    content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 0;
+    background:
+      radial-gradient(ellipse at 20% 30%, rgba(212, 165, 116, 0.08), transparent 50%),
+      radial-gradient(ellipse at 80% 70%, rgba(111, 163, 154, 0.06), transparent 50%),
+      radial-gradient(ellipse at 50% 50%, rgba(184, 122, 156, 0.05), transparent 60%);
+  }
+  body::after {
+    content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 1;
+    background-image: radial-gradient(circle, rgba(232,227,211,0.4) 1px, transparent 1px);
+    background-size: 3px 3px;
+    opacity: 0.012;
+  }
+
+  #particles {
+    position: fixed; inset: 0; pointer-events: none; z-index: 1;
+  }
+
+  /* ─── Top bar ─── */
+  .topbar {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    padding: 22px 32px; display: flex; align-items: center; justify-content: space-between;
+    pointer-events: none;
+  }
+  .topbar > * { pointer-events: auto; }
+  .brand {
+    display: flex; align-items: baseline; gap: 12px;
+    font-family: var(--serif); font-style: italic;
+    opacity: 0; animation: fadeIn 1.2s 0.3s forwards;
+    cursor: pointer; user-select: none;
+  }
+  .brand .mark {
+    font-size: 26px; font-weight: 500; letter-spacing: 0.02em; color: var(--gold-bright);
+    transition: color 0.3s;
+  }
+  .brand:hover .mark { color: #fff; }
+  .brand .sub {
+    font-family: var(--sans); font-style: normal; font-size: 10px;
+    letter-spacing: 0.3em; text-transform: uppercase; color: var(--ink-dim);
+  }
+  .top-actions { display: flex; align-items: center; gap: 16px; opacity: 0; animation: fadeIn 1.2s 0.6s forwards; }
+  .icon-btn {
+    width: 38px; height: 38px; border-radius: 50%;
+    background: rgba(26, 34, 54, 0.5); backdrop-filter: blur(20px);
+    border: 1px solid var(--line); color: var(--ink-dim);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; transition: all 0.25s;
+    font-size: 16px;
+  }
+  .icon-btn:hover { color: var(--gold); border-color: var(--gold); transform: translateY(-1px); }
+  .icon-btn.active { color: var(--gold); border-color: var(--gold); }
+
+  .search-wrap {
+    position: relative;
+  }
+  .search {
+    width: 300px; background: rgba(26, 34, 54, 0.5); backdrop-filter: blur(20px);
+    border: 1px solid var(--line); border-radius: 999px;
+    padding: 10px 18px 10px 42px; color: var(--ink); font-family: var(--sans);
+    font-size: 13px; outline: none; transition: all 0.3s;
+  }
+  .search:focus { border-color: var(--gold); background: rgba(26, 34, 54, 0.85); width: 360px; }
+  .search::placeholder { color: var(--ink-low); }
+  .search-icon {
+    position: absolute; left: 16px; top: 50%; transform: translateY(-50%);
+    width: 15px; height: 15px; opacity: 0.5; pointer-events: none;
+  }
+  .search-results {
+    position: absolute; top: calc(100% + 8px); right: 0; width: 380px;
+    background: rgba(17, 23, 38, 0.95); backdrop-filter: blur(20px);
+    border: 1px solid var(--line-2); border-radius: 12px;
+    max-height: 380px; overflow-y: auto; display: none;
+    box-shadow: 0 16px 40px rgba(0,0,0,0.4);
+  }
+  .search-results.show { display: block; }
+  .search-item {
+    padding: 12px 18px; display: flex; align-items: center; gap: 12px;
+    cursor: pointer; border-bottom: 1px solid var(--line);
+    transition: background 0.2s;
+  }
+  .search-item:last-child { border-bottom: none; }
+  .search-item:hover { background: var(--bg-3); }
+  .search-item .avatar {
+    width: 32px; height: 32px; border-radius: 50%; background: var(--bg-3);
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--serif); font-size: 14px; color: var(--gold);
+  }
+  .search-item.fam-watwani .avatar { color: var(--watwani); }
+  .search-item.fam-sidhwani .avatar { color: var(--sidhwani); }
+  .search-item.fam-makrani .avatar { color: var(--makrani); }
+  .search-item .name { font-size: 13px; }
+  .search-item .meta { font-size: 11px; color: var(--ink-dim); letter-spacing: 0.05em; }
+
+  /* ─── Galaxy view ─── */
+  .galaxy {
+    position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+    z-index: 2; transition: opacity 0.7s, transform 0.7s;
+  }
+  .galaxy.hidden { opacity: 0; transform: scale(1.15); pointer-events: none; }
+  .galaxy-inner {
+    position: relative; width: 760px; height: 480px;
+  }
+  .cluster {
+    position: absolute; width: 220px; height: 220px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    border-radius: 50%; cursor: pointer; transition: transform 0.5s cubic-bezier(.2,.9,.3,1.4);
+    opacity: 0;
+  }
+  .cluster::before {
+    content: ''; position: absolute; inset: 0; border-radius: 50%;
+    background: radial-gradient(circle at 50% 50%, var(--c-glow), transparent 70%);
+    transition: opacity 0.4s;
+  }
+  .cluster::after {
+    content: ''; position: absolute; inset: 30px; border-radius: 50%;
+    border: 1px solid var(--c-edge);
+    transition: all 0.5s;
+  }
+  .cluster:hover { transform: scale(1.08); }
+  .cluster:hover::before { opacity: 1.5; }
+  .cluster:hover::after { inset: 18px; border-color: var(--c-text); }
+  .cluster .label {
+    position: relative; z-index: 2; font-family: var(--serif);
+    font-size: 36px; font-weight: 400; letter-spacing: 0.02em; color: var(--c-text);
+    margin-bottom: 4px;
+  }
+  .cluster .count {
+    position: relative; z-index: 2; font-size: 10px; letter-spacing: 0.3em;
+    text-transform: uppercase; color: var(--ink-dim);
+  }
+  .cluster .orbit { position: absolute; inset: 0; pointer-events: none; }
+  .cluster .orbit span {
+    position: absolute; width: 4px; height: 4px; border-radius: 50%; background: var(--c-text);
+    opacity: 0.5; animation: orbitFloat 8s ease-in-out infinite;
+  }
+  @keyframes orbitFloat {
+    0%, 100% { transform: translate(0, 0); opacity: 0.5; }
+    50% { transform: translate(2px, -2px); opacity: 0.8; }
+  }
+  .cluster.cl-watwani {
+    --c-glow: rgba(212, 165, 116, 0.3); --c-edge: rgba(212, 165, 116, 0.25); --c-text: var(--watwani);
+    top: 50px; left: 270px; animation: floatIn 1.4s 0.4s cubic-bezier(.2,.8,.2,1.4) forwards;
+  }
+  .cluster.cl-sidhwani {
+    --c-glow: rgba(184, 122, 156, 0.3); --c-edge: rgba(184, 122, 156, 0.25); --c-text: var(--sidhwani);
+    top: 220px; left: 50px; animation: floatIn 1.4s 0.6s cubic-bezier(.2,.8,.2,1.4) forwards;
+  }
+  .cluster.cl-makrani {
+    --c-glow: rgba(111, 163, 154, 0.3); --c-edge: rgba(111, 163, 154, 0.25); --c-text: var(--makrani);
+    top: 220px; left: 490px; animation: floatIn 1.4s 0.8s cubic-bezier(.2,.8,.2,1.4) forwards;
+  }
+  @keyframes floatIn {
+    0% { opacity: 0; transform: scale(0.5) translateY(50px); }
+    100% { opacity: 1; transform: scale(1) translateY(0); }
+  }
+  .cluster-line {
+    position: absolute; height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(201, 169, 97, 0.35), transparent);
+    transform-origin: 0 50%; opacity: 0;
+    animation: lineGrow 1.6s 1.6s cubic-bezier(.2,.8,.2,1) forwards;
+  }
+  @keyframes lineGrow {
+    0% { opacity: 0; transform-origin: 0 50%; clip-path: inset(0 100% 0 0); }
+    100% { opacity: 1; clip-path: inset(0 0 0 0); }
+  }
+
+  .galaxy-title {
+    position: absolute; top: 90px; left: 50%; transform: translateX(-50%);
+    text-align: center; opacity: 0; animation: fadeUp 1.4s 0.2s forwards;
+    z-index: 5; pointer-events: none;
+  }
+  .galaxy-title h1 {
+    font-family: var(--serif); font-style: italic; font-weight: 400;
+    font-size: 62px; letter-spacing: -0.01em; color: var(--ink);
+    line-height: 1;
+  }
+  .galaxy-title .deck {
+    font-size: 11px; letter-spacing: 0.45em; text-transform: uppercase;
+    color: var(--ink-dim); margin-top: 18px;
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateX(-50%) translateY(20px); }
+    to { opacity: 1; transform: translateX(-50%) translateY(0); }
+  }
+  .galaxy-hint {
+    position: absolute; bottom: 60px; left: 50%; transform: translateX(-50%);
+    font-size: 11px; letter-spacing: 0.35em; text-transform: uppercase;
+    color: var(--ink-low); opacity: 0; animation: fadeIn 1.4s 1.6s forwards;
+    z-index: 5; text-align: center;
+  }
+  .galaxy-hint .key {
+    display: inline-block; padding: 3px 10px; margin: 0 4px;
+    border: 1px solid var(--line-2); border-radius: 4px;
+    font-size: 10px; color: var(--ink-dim);
+  }
+  .galaxy-stats {
+    position: absolute; bottom: 28px; left: 50%; transform: translateX(-50%);
+    display: flex; gap: 32px; opacity: 0; animation: fadeIn 1.4s 1.8s forwards;
+    z-index: 5;
+  }
+  .galaxy-stats .stat { text-align: center; }
+  .galaxy-stats .num {
+    font-family: var(--serif); font-size: 26px; color: var(--gold-bright);
+    line-height: 1;
+  }
+  .galaxy-stats .lab {
+    font-size: 9px; letter-spacing: 0.3em; text-transform: uppercase;
+    color: var(--ink-low); margin-top: 4px;
+  }
+
+  /* ─── Tree view ─── */
+  .tree-view {
+    position: absolute; inset: 0; z-index: 2; opacity: 0; pointer-events: none;
+    transition: opacity 0.6s;
+  }
+  .tree-view.active { opacity: 1; pointer-events: auto; }
+
+  .tree-toolbar {
+    position: fixed; top: 88px; left: 50%; transform: translateX(-50%);
+    display: flex; gap: 4px; padding: 5px;
+    background: rgba(17, 23, 38, 0.65); backdrop-filter: blur(20px);
+    border: 1px solid var(--line); border-radius: 999px;
+    z-index: 50;
+  }
+  .tree-toolbar button {
+    background: transparent; border: none; color: var(--ink-dim);
+    font-family: var(--sans); font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase;
+    padding: 8px 16px; border-radius: 999px; cursor: pointer; transition: all 0.25s;
+  }
+  .tree-toolbar button:hover { color: var(--ink); }
+  .tree-toolbar button.active {
+    background: var(--gold); color: var(--bg);
+  }
+  .tree-toolbar .sep {
+    width: 1px; background: var(--line); margin: 4px 4px;
+  }
+  .tree-back {
+    position: fixed; top: 88px; left: 32px;
+    background: rgba(17, 23, 38, 0.65); backdrop-filter: blur(20px);
+    border: 1px solid var(--line); color: var(--ink-dim);
+    font-family: var(--sans); font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase;
+    padding: 9px 16px 9px 13px; border-radius: 999px; cursor: pointer;
+    display: flex; align-items: center; gap: 8px; transition: all 0.25s;
+    z-index: 50;
+  }
+  .tree-back:hover { color: var(--ink); border-color: var(--line-2); }
+
+  .tree-zoom {
+    position: fixed; bottom: 32px; right: 32px;
+    display: flex; flex-direction: column; gap: 6px;
+    z-index: 50;
+  }
+  .tree-zoom button {
+    width: 38px; height: 38px;
+    background: rgba(17, 23, 38, 0.65); backdrop-filter: blur(20px);
+    border: 1px solid var(--line); color: var(--ink-dim);
+    border-radius: 50%; cursor: pointer;
+    font-size: 16px; line-height: 1;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.25s;
+  }
+  .tree-zoom button:hover { color: var(--gold); border-color: var(--gold); }
+  .tree-zoom button.fit { font-size: 9px; letter-spacing: 0.15em; }
+
+  /* Mini-map */
+  .minimap {
+    position: fixed; bottom: 32px; left: 32px;
+    width: 200px; height: 140px;
+    background: rgba(17, 23, 38, 0.85); backdrop-filter: blur(20px);
+    border: 1px solid var(--line); border-radius: 12px;
+    overflow: hidden; z-index: 50; cursor: pointer;
+    transition: opacity 0.3s;
+  }
+  .minimap canvas { width: 100%; height: 100%; display: block; }
+  .minimap-viewport {
+    position: absolute; border: 1.5px solid var(--gold);
+    background: rgba(201, 169, 97, 0.08); pointer-events: none;
+    border-radius: 2px;
+  }
+  .minimap-label {
+    position: absolute; top: 6px; left: 8px;
+    font-size: 9px; letter-spacing: 0.25em; text-transform: uppercase;
+    color: var(--ink-dim);
+  }
+
+  .canvas-wrap {
+    position: absolute; inset: 0; cursor: grab;
+    overflow: hidden;
+  }
+  .canvas-wrap:active { cursor: grabbing; }
+  .canvas {
+    position: absolute; top: 0; left: 0;
+    transform-origin: 0 0;
+    transition: transform 0.7s cubic-bezier(.2,.8,.2,1);
+    width: 1px; height: 1px;
+  }
+  .canvas.dragging, .canvas.notransition { transition: none; }
+
+  .edge {
+    position: absolute; height: 1px; transform-origin: 0 50%;
+    background: linear-gradient(90deg, transparent, var(--line-3) 20%, var(--line-3) 80%, transparent);
+    pointer-events: none; opacity: 0;
+    animation: edgeIn 0.8s forwards;
+  }
+  .edge.marriage {
+    background: repeating-linear-gradient(90deg, var(--gold) 0 6px, transparent 6px 12px);
+    height: 1.5px;
+    animation: edgeIn 0.8s 0.3s forwards;
+  }
+  .edge.cross {
+    height: 2px;
+  }
+  .edge.highlight {
+    background: linear-gradient(90deg, transparent, var(--gold-bright), transparent) !important;
+    height: 2.5px !important; opacity: 1 !important;
+    box-shadow: 0 0 16px rgba(232, 201, 122, 0.7);
+    z-index: 10;
+  }
+  .edge.dim { opacity: 0.06 !important; }
+  @keyframes edgeIn { to { opacity: 1; } }
+
+  .node {
+    position: absolute; width: 144px; transform: translate(-50%, -50%);
+    cursor: pointer; opacity: 0;
+    animation: nodeIn 0.6s forwards;
+    transition: filter 0.3s;
+  }
+  @keyframes nodeIn {
+    from { opacity: 0; transform: translate(-50%, -50%) scale(0.6); }
+    to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  }
+  .node-card {
+    background: var(--bg-2);
+    border: 1px solid var(--node-border, var(--line-2));
+    border-radius: 12px;
+    padding: 14px 12px 12px;
+    text-align: center;
+    transition: all 0.3s cubic-bezier(.2,.8,.2,1.4);
+    position: relative;
+  }
+  .node:hover .node-card {
+    transform: translateY(-4px) scale(1.05);
+    border-color: var(--node-glow, var(--gold));
+    box-shadow:
+      0 0 0 1px var(--node-glow, var(--gold)),
+      0 14px 50px rgba(0,0,0,0.55),
+      0 0 70px var(--node-glow-soft, rgba(201, 169, 97, 0.18));
+  }
+  .node.dim { filter: opacity(0.18) saturate(0.4); }
+  .node.highlight .node-card {
+    border-color: var(--gold-bright);
+    box-shadow:
+      0 0 0 1.5px var(--gold-bright),
+      0 0 40px rgba(232, 201, 122, 0.4);
+  }
+  .node.focused .node-card {
+    border-color: var(--gold);
+    background: linear-gradient(180deg, var(--bg-2), rgba(201, 169, 97, 0.08));
+  }
+  .node.focused .node-card .photo {
+    background: rgba(201, 169, 97, 0.15);
+    border-color: var(--gold);
+    color: var(--gold-bright);
+  }
+  .node.focused::before {
+    content: ''; position: absolute; inset: -20px;
+    border-radius: 50%;
+    border: 1px solid rgba(201, 169, 97, 0.25);
+    pointer-events: none;
+    animation: focusPulse 2.6s ease-in-out infinite;
+  }
+  .node.focused::after {
+    content: ''; position: absolute; inset: -40px;
+    border-radius: 50%;
+    border: 1px solid rgba(201, 169, 97, 0.12);
+    pointer-events: none;
+    animation: focusPulse 2.6s ease-in-out infinite 0.3s;
+  }
+  @keyframes focusPulse {
+    0%, 100% { opacity: 0.5; transform: scale(0.95); }
+    50% { opacity: 1; transform: scale(1.05); }
+  }
+  .node-card .photo {
+    width: 56px; height: 56px; border-radius: 50%; margin: 0 auto 8px;
+    background: var(--bg-3);
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--serif); font-size: 22px; font-weight: 400;
+    color: var(--node-text, var(--ink));
+    border: 1px solid var(--node-border, var(--line-2));
+    transition: all 0.3s;
+  }
+  .node-card .name {
+    font-family: var(--serif); font-size: 17px; line-height: 1.15;
+    color: var(--ink); margin-bottom: 3px;
+  }
+  .node-card .role {
+    font-size: 9px; letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--ink-dim);
+  }
+  .node-card .age {
+    font-size: 10px; color: var(--ink-low); margin-top: 4px;
+    font-family: var(--serif); font-style: italic;
+  }
+  .node-card .deceased-dot {
+    position: absolute; top: 8px; right: 8px;
+    width: 5px; height: 5px; border-radius: 50%;
+    background: var(--ink-low);
+  }
+  .node-card .gender-dot {
+    position: absolute; top: 8px; left: 8px;
+    width: 14px; height: 14px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--sans); font-size: 9px; font-weight: 500;
+    color: var(--bg);
+    line-height: 1;
+  }
+  .node-card .gender-dot.male {
+    background: rgba(135, 165, 200, 0.8);
+  }
+  .node-card .gender-dot.female {
+    background: rgba(200, 145, 175, 0.8);
+  }
+  .node-card .gender-dot.missing {
+    background: transparent;
+    border: 1px dashed var(--ink-low);
+    color: var(--ink-low);
+  }
+  .node.fam-watwani { --node-border: rgba(212, 165, 116, 0.3); --node-glow: var(--watwani); --node-text: var(--watwani); --node-glow-soft: rgba(212, 165, 116, 0.18); }
+  .node.fam-sidhwani { --node-border: rgba(184, 122, 156, 0.3); --node-glow: var(--sidhwani); --node-text: var(--sidhwani); --node-glow-soft: rgba(184, 122, 156, 0.18); }
+  .node.fam-makrani { --node-border: rgba(111, 163, 154, 0.3); --node-glow: var(--makrani); --node-text: var(--makrani); --node-glow-soft: rgba(111, 163, 154, 0.18); }
+
+  /* Hover ripple */
+  .ripple {
+    position: absolute; pointer-events: none;
+    width: 200px; height: 200px;
+    border-radius: 50%;
+    border: 1px solid var(--gold);
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.5);
+    animation: rippleOut 1.2s ease-out forwards;
+  }
+  @keyframes rippleOut {
+    0% { opacity: 0.6; transform: translate(-50%, -50%) scale(0.5); }
+    100% { opacity: 0; transform: translate(-50%, -50%) scale(2.2); }
+  }
+
+  /* ─── Person panel ─── */
+  .panel-backdrop {
+    position: fixed; inset: 0; background: rgba(10, 14, 26, 0.65); backdrop-filter: blur(8px);
+    z-index: 200; opacity: 0; pointer-events: none; transition: opacity 0.4s;
+  }
+  .panel-backdrop.show { opacity: 1; pointer-events: auto; }
+  .panel {
+    position: fixed; top: 0; right: 0; bottom: 0; width: 460px;
+    background: var(--bg-2); border-left: 1px solid var(--line-2);
+    z-index: 201; transform: translateX(100%); transition: transform 0.55s cubic-bezier(.2,.85,.2,1);
+    overflow-y: auto;
+  }
+  .panel.show { transform: translateX(0); }
+  .panel-close {
+    position: absolute; top: 20px; right: 20px;
+    width: 36px; height: 36px; border-radius: 50%;
+    background: transparent; border: 1px solid var(--line-2); color: var(--ink-dim);
+    cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center;
+    font-size: 18px; z-index: 5;
+  }
+  .panel-close:hover { color: var(--ink); border-color: var(--ink-dim); transform: rotate(90deg); }
+  .panel-head {
+    padding: 60px 36px 28px; text-align: center;
+    border-bottom: 1px solid var(--line);
+    position: relative;
+  }
+  .panel-head::before {
+    content: ''; position: absolute; inset: 0;
+    background: radial-gradient(circle at 50% 30%, var(--panel-bg, rgba(201, 169, 97, 0.06)), transparent 70%);
+    pointer-events: none;
+  }
+  .panel-photo {
+    width: 116px; height: 116px; border-radius: 50%; margin: 0 auto 16px;
+    background: var(--bg-3); border: 1px solid var(--panel-border, var(--line-2));
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--serif); font-size: 46px; color: var(--panel-color, var(--gold));
+    position: relative; z-index: 2;
+  }
+  .panel-name {
+    font-family: var(--serif); font-size: 34px; font-weight: 400; color: var(--ink);
+    margin-bottom: 6px; line-height: 1.1;
+    position: relative; z-index: 2;
+  }
+  .panel-maiden {
+    font-family: var(--serif); font-style: italic; font-size: 15px;
+    color: var(--ink-dim); margin-bottom: 8px;
+    position: relative; z-index: 2;
+  }
+  .panel-meta {
+    font-size: 10px; letter-spacing: 0.3em; text-transform: uppercase;
+    color: var(--ink-dim);
+    position: relative; z-index: 2;
+  }
+  .panel-fam-tag {
+    display: inline-block; margin-top: 16px; padding: 5px 14px;
+    background: var(--panel-bg, rgba(201, 169, 97, 0.1));
+    border: 1px solid var(--panel-border, rgba(201, 169, 97, 0.25));
+    border-radius: 999px;
+    font-size: 9px; letter-spacing: 0.28em; text-transform: uppercase;
+    color: var(--panel-color, var(--gold));
+    position: relative; z-index: 2;
+  }
+  .panel-section {
+    padding: 26px 36px; border-bottom: 1px solid var(--line);
+  }
+  .panel-section h3 {
+    font-family: var(--sans); font-size: 9px; letter-spacing: 0.35em;
+    text-transform: uppercase; color: var(--ink-dim); margin-bottom: 16px;
+    font-weight: 500;
+  }
+  .panel-bio {
+    font-family: var(--serif); font-size: 18px; font-style: italic;
+    line-height: 1.55; color: var(--ink); font-weight: 300;
+  }
+  .panel-stat-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 18px;
+  }
+  .panel-stat-label {
+    font-size: 9px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--ink-dim);
+    margin-bottom: 5px;
+  }
+  .panel-stat-value {
+    font-family: var(--serif); font-size: 19px; color: var(--ink);
+  }
+  .panel-timeline-item {
+    display: flex; gap: 16px; padding: 14px 0;
+    border-bottom: 1px solid var(--line);
+    position: relative;
+  }
+  .panel-timeline-item:last-child { border-bottom: none; }
+  .panel-timeline-item::before {
+    content: ''; position: absolute; left: -8px; top: 22px;
+    width: 5px; height: 5px; border-radius: 50%;
+    background: var(--gold);
+  }
+  .panel-timeline-year {
+    font-family: var(--serif); font-size: 24px; color: var(--gold);
+    min-width: 64px; line-height: 1;
+  }
+  .panel-timeline-content { flex: 1; }
+  .panel-timeline-title { font-size: 13px; color: var(--ink); margin-bottom: 4px; font-weight: 500; }
+  .panel-timeline-desc { font-size: 12px; color: var(--ink-dim); line-height: 1.55; }
+
+  .panel-connections { display: flex; flex-direction: column; gap: 6px; }
+
+  .kinship-list { display: flex; flex-direction: column; gap: 18px; }
+  .kin-group {  }
+  .kin-label {
+    font-family: var(--serif); font-style: italic; font-size: 14px;
+    color: var(--ink-dim); margin-bottom: 8px;
+  }
+  .kin-people {
+    display: flex; flex-wrap: wrap; gap: 6px;
+  }
+  .kin-person {
+    display: flex; align-items: center; gap: 8px;
+    padding: 7px 12px 7px 7px;
+    background: var(--bg-3); border-radius: 999px;
+    cursor: pointer; transition: all 0.2s;
+    border: 1px solid transparent;
+  }
+  .kin-person:hover {
+    background: var(--bg);
+    border-color: var(--line-2);
+    transform: translateY(-1px);
+  }
+  .kin-avatar {
+    width: 26px; height: 26px; border-radius: 50%; background: var(--bg-2);
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--serif); font-size: 12px;
+    flex-shrink: 0;
+  }
+  .kin-person.fam-watwani .kin-avatar { color: var(--watwani); }
+  .kin-person.fam-sidhwani .kin-avatar { color: var(--sidhwani); }
+  .kin-person.fam-makrani .kin-avatar { color: var(--makrani); }
+  .kin-name { font-size: 12px; color: var(--ink); }
+  .panel-connection {
+    display: flex; align-items: center; gap: 12px; padding: 10px 12px;
+    background: var(--bg-3); border-radius: 8px; cursor: pointer;
+    transition: all 0.2s;
+    border: 1px solid transparent;
+  }
+  .panel-connection:hover { background: var(--bg); transform: translateX(4px); border-color: var(--line-2); }
+  .panel-connection .pc-avatar {
+    width: 32px; height: 32px; border-radius: 50%; background: var(--bg-2);
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--serif); font-size: 14px;
+  }
+  .panel-connection.fam-watwani .pc-avatar { color: var(--watwani); }
+  .panel-connection.fam-sidhwani .pc-avatar { color: var(--sidhwani); }
+  .panel-connection.fam-makrani .pc-avatar { color: var(--makrani); }
+  .panel-connection .pc-info { flex: 1; }
+  .panel-connection .pc-name { font-size: 13px; color: var(--ink); }
+  .panel-connection .pc-rel { font-size: 11px; color: var(--ink-dim); }
+
+  .panel-actions {
+    display: flex; gap: 8px; padding: 24px 36px;
+    border-bottom: 1px solid var(--line);
+  }
+  .panel-action-btn {
+    flex: 1; background: rgba(201, 169, 97, 0.08); border: 1px solid var(--gold);
+    color: var(--gold-bright); padding: 11px;
+    font-family: var(--sans); font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase;
+    border-radius: 8px;
+    cursor: pointer; transition: all 0.2s;
+  }
+  .panel-action-btn:hover { background: rgba(201, 169, 97, 0.18); }
+  .panel-action-btn.secondary {
+    background: transparent; border-color: var(--line-2); color: var(--ink-dim);
+  }
+  .panel-action-btn.secondary:hover { color: var(--ink); border-color: var(--ink-dim); }
+
+  /* ─── Banners ─── */
+  .connect-mode-banner, .focus-banner {
+    position: fixed; top: 148px; left: 50%; transform: translateX(-50%);
+    background: rgba(17, 23, 38, 0.85); backdrop-filter: blur(20px);
+    border: 1px solid var(--gold); border-radius: 999px;
+    z-index: 60; display: none;
+    align-items: center; gap: 14px;
+    opacity: 0; transition: opacity 0.4s;
+  }
+  .connect-mode-banner {
+    padding: 10px 20px; font-size: 11px; color: var(--gold-bright);
+    letter-spacing: 0.2em; text-transform: uppercase;
+  }
+  .connect-mode-banner.show, .focus-banner.show {
+    display: flex; opacity: 1;
+  }
+  .focus-banner { padding: 7px 8px 7px 18px; }
+  .focus-banner .label {
+    font-size: 10px; letter-spacing: 0.25em; text-transform: uppercase; color: var(--ink-dim);
+  }
+  .focus-banner .who {
+    font-family: var(--serif); font-size: 17px; color: var(--gold-bright);
+  }
+  .focus-banner button {
+    background: transparent; border: 1px solid var(--line-2); color: var(--ink-dim);
+    border-radius: 999px; padding: 6px 12px; font-size: 9px;
+    letter-spacing: 0.22em; text-transform: uppercase; cursor: pointer;
+    font-family: var(--sans); transition: all 0.2s;
+  }
+  .focus-banner button:hover { color: var(--ink); border-color: var(--gold); }
+
+  /* ─── Timeline scrubber ─── */
+  .timeline-scrubber {
+    position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%);
+    width: 480px;
+    background: rgba(17, 23, 38, 0.85); backdrop-filter: blur(20px);
+    border: 1px solid var(--line); border-radius: 14px;
+    padding: 16px 20px; z-index: 50;
+    display: none;
+  }
+  .timeline-scrubber.show { display: block; animation: fadeUp2 0.4s forwards; }
+  @keyframes fadeUp2 {
+    from { opacity: 0; transform: translateX(-50%) translateY(10px); }
+    to { opacity: 1; transform: translateX(-50%) translateY(0); }
+  }
+  .ts-head {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 12px;
+  }
+  .ts-title { font-size: 9px; letter-spacing: 0.3em; text-transform: uppercase; color: var(--ink-dim); }
+  .ts-year {
+    font-family: var(--serif); font-size: 28px; color: var(--gold-bright); line-height: 1;
+  }
+  .ts-bar {
+    position: relative; height: 24px;
+  }
+  .ts-track {
+    position: absolute; top: 11px; left: 0; right: 0; height: 2px;
+    background: var(--line-2); border-radius: 1px;
+  }
+  .ts-fill {
+    position: absolute; top: 11px; left: 0; height: 2px;
+    background: var(--gold); border-radius: 1px;
+    transition: width 0.2s;
+  }
+  .ts-input {
+    position: absolute; inset: 0; width: 100%; opacity: 0; cursor: pointer; z-index: 3;
+  }
+  .ts-thumb {
+    position: absolute; top: 50%; transform: translate(-50%, -50%);
+    width: 16px; height: 16px; border-radius: 50%;
+    background: var(--gold); border: 2px solid var(--bg);
+    pointer-events: none; transition: left 0.2s;
+  }
+  .ts-events {
+    position: relative; height: 14px; margin-top: 6px;
+  }
+  .ts-event-dot {
+    position: absolute; top: 4px; width: 6px; height: 6px; border-radius: 50%;
+    background: var(--ink-low);
+    transform: translateX(-50%);
+  }
+  .ts-event-dot.active { background: var(--gold-bright); }
+  .ts-legend {
+    display: flex; justify-content: space-between; margin-top: 4px;
+    font-size: 10px; color: var(--ink-low);
+    font-family: var(--serif);
+  }
+
+  /* ─── Stats overlay ─── */
+  .stats-panel {
+    position: fixed; top: 0; right: 0; bottom: 0; width: 420px;
+    background: var(--bg-2); border-left: 1px solid var(--line-2);
+    z-index: 199; transform: translateX(100%); transition: transform 0.5s cubic-bezier(.2,.85,.2,1);
+    overflow-y: auto;
+  }
+  .stats-panel.show { transform: translateX(0); }
+  .stats-head {
+    padding: 60px 32px 24px;
+    border-bottom: 1px solid var(--line);
+  }
+  .stats-head h2 {
+    font-family: var(--serif); font-size: 30px; font-weight: 400;
+    color: var(--ink); margin-bottom: 6px;
+  }
+  .stats-head .sub {
+    font-size: 10px; letter-spacing: 0.3em; text-transform: uppercase; color: var(--ink-dim);
+  }
+  .stats-body { padding: 24px 32px; }
+  .stat-card {
+    padding: 18px 0; border-bottom: 1px solid var(--line);
+  }
+  .stat-card:last-child { border-bottom: none; }
+  .stat-card .h {
+    font-size: 9px; letter-spacing: 0.3em; text-transform: uppercase; color: var(--ink-dim);
+    margin-bottom: 10px;
+  }
+  .stat-big {
+    font-family: var(--serif); font-size: 38px; color: var(--gold-bright); line-height: 1;
+  }
+  .stat-bars { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
+  .stat-bar { display: flex; align-items: center; gap: 10px; font-size: 12px; }
+  .stat-bar .lbl { width: 80px; color: var(--ink); }
+  .stat-bar .bar-bg {
+    flex: 1; height: 8px; background: var(--bg-3); border-radius: 4px; overflow: hidden;
+  }
+  .stat-bar .bar-fill { height: 100%; border-radius: 4px; transition: width 0.8s cubic-bezier(.2,.8,.2,1); }
+  .stat-bar.fam-watwani .bar-fill { background: var(--watwani); }
+  .stat-bar.fam-sidhwani .bar-fill { background: var(--sidhwani); }
+  .stat-bar.fam-makrani .bar-fill { background: var(--makrani); }
+  .stat-bar .num { width: 24px; text-align: right; color: var(--ink-dim); font-family: var(--serif); }
+
+  .month-heatmap {
+    display: grid; grid-template-columns: repeat(12, 1fr); gap: 3px;
+    margin-top: 12px;
+  }
+  .month-cell {
+    aspect-ratio: 1; border-radius: 3px;
+    background: var(--bg-3); position: relative;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 9px; color: var(--ink-low);
+    transition: all 0.2s;
+  }
+  .month-cell[data-count]:not([data-count="0"]) {
+    color: var(--bg);
+  }
+  .month-labels {
+    display: grid; grid-template-columns: repeat(12, 1fr); gap: 3px;
+    margin-top: 4px;
+    font-size: 8px; color: var(--ink-low); letter-spacing: 0.1em; text-transform: uppercase;
+    text-align: center;
+  }
+
+  .data-health { background: rgba(212, 165, 116, 0.04); margin: 0 -16px; padding: 18px 16px; border-radius: 10px; }
+  .dh-row { display: flex; gap: 12px; margin-top: 14px; }
+  .dh-row:first-child { margin-top: 0; }
+  .dh-icon {
+    flex-shrink: 0; width: 22px; height: 22px; border-radius: 50%;
+    background: rgba(212, 165, 116, 0.18); color: var(--gold-bright);
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--serif); font-size: 14px; font-weight: 500;
+  }
+  .dh-content { flex: 1; min-width: 0; }
+  .dh-title {
+    font-size: 13px; color: var(--ink); font-weight: 500; line-height: 1.4;
+    margin-bottom: 3px;
+  }
+  .dh-sub {
+    font-size: 11px; color: var(--ink-dim); line-height: 1.55;
+    margin-bottom: 8px;
+  }
+  .dh-names {
+    display: flex; flex-wrap: wrap; gap: 4px;
+  }
+  .dh-name {
+    background: var(--bg-3); padding: 4px 10px; border-radius: 999px;
+    font-size: 11px; color: var(--ink); cursor: pointer;
+    border: 1px solid transparent; transition: all 0.2s;
+  }
+  .dh-name:hover { border-color: var(--gold); color: var(--gold-bright); }
+  .dh-more { font-size: 11px; color: var(--ink-dim); padding: 4px 6px; font-style: italic; font-family: var(--serif); }
+  .data-health-clean { background: rgba(111, 163, 154, 0.06); margin: 0 -16px; padding: 18px 16px; border-radius: 10px; }
+
+  /* ─── Toast notifications ─── */
+  .toast {
+    position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%) translateY(20px);
+    background: rgba(17, 23, 38, 0.95); backdrop-filter: blur(20px);
+    border: 1px solid var(--gold); border-radius: 999px;
+    padding: 12px 24px; font-size: 12px; color: var(--gold-bright);
+    z-index: 300; opacity: 0;
+    transition: all 0.4s cubic-bezier(.2,.8,.2,1.4);
+    font-family: var(--serif); font-style: italic;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* ─── Settings dialog ─── */
+  .settings-backdrop {
+    position: fixed; inset: 0; background: rgba(10, 14, 26, 0.7); backdrop-filter: blur(8px);
+    z-index: 250; opacity: 0; pointer-events: none; transition: opacity 0.4s;
+  }
+  .settings-backdrop.show { opacity: 1; pointer-events: auto; }
+  .settings-dialog {
+    position: fixed; top: 50%; left: 50%; transform: translate(-50%, -45%);
+    width: 480px; max-width: calc(100vw - 32px); max-height: 90vh;
+    background: var(--bg-2); border: 1px solid var(--line-2); border-radius: 16px;
+    z-index: 251; opacity: 0; pointer-events: none; transition: all 0.4s cubic-bezier(.2,.85,.2,1.4);
+    overflow-y: auto;
+  }
+  .settings-dialog.show { opacity: 1; pointer-events: auto; transform: translate(-50%, -50%); }
+  .settings-head { padding: 38px 36px 24px; border-bottom: 1px solid var(--line); }
+  .settings-head h2 {
+    font-family: var(--serif); font-size: 26px; font-weight: 400;
+    color: var(--ink); margin-bottom: 4px;
+  }
+  .settings-head .sub {
+    font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--ink-dim);
+  }
+  .settings-body { padding: 24px 36px 30px; }
+  .settings-field { margin-bottom: 16px; }
+  .settings-field label {
+    display: block; font-size: 10px; letter-spacing: 0.25em; text-transform: uppercase;
+    color: var(--ink-dim); margin-bottom: 7px;
+  }
+  .settings-field input {
+    width: 100%; background: var(--bg-3); border: 1px solid var(--line);
+    border-radius: 8px; padding: 11px 14px; color: var(--ink);
+    font-family: var(--sans); font-size: 13px; outline: none;
+    transition: border-color 0.2s;
+  }
+  .settings-field input:focus { border-color: var(--gold); }
+  .settings-hint {
+    font-size: 11px; color: var(--ink-low); margin-top: 6px; line-height: 1.5;
+  }
+  .settings-hint code {
+    background: var(--bg-3); padding: 1px 6px; border-radius: 4px;
+    font-family: ui-monospace, monospace; font-size: 10px; color: var(--ink-dim);
+  }
+  .settings-hint code strong { color: var(--gold-bright); font-weight: 400; }
+  .settings-note {
+    background: rgba(201, 169, 97, 0.06); border-left: 2px solid var(--gold);
+    padding: 10px 14px; margin: 18px 0;
+    font-size: 12px; color: var(--ink); line-height: 1.55;
+  }
+  .settings-note strong { color: var(--gold-bright); font-weight: 500; }
+  .settings-note em { font-family: var(--serif); font-style: italic; color: var(--ink); }
+  .settings-actions {
+    display: flex; gap: 8px; margin-top: 20px;
+  }
+  .settings-btn {
+    flex: 1; background: transparent; border: 1px solid var(--line-2);
+    color: var(--ink-dim); padding: 11px;
+    font-family: var(--sans); font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase;
+    border-radius: 8px; cursor: pointer; transition: all 0.2s;
+  }
+  .settings-btn:hover { color: var(--ink); border-color: var(--ink-dim); }
+  .settings-btn.primary {
+    background: rgba(201, 169, 97, 0.1); border-color: var(--gold); color: var(--gold-bright);
+  }
+  .settings-btn.primary:hover { background: rgba(201, 169, 97, 0.2); }
+  .settings-current {
+    margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--line);
+    font-size: 11px; color: var(--ink-dim); font-family: var(--serif); font-style: italic;
+  }
+  .settings-test-result {
+    margin-top: 14px; padding: 12px 14px;
+    border-radius: 8px; font-size: 12px; line-height: 1.55;
+    display: none;
+  }
+  .settings-test-result.show { display: block; }
+  .settings-test-result.ok {
+    background: rgba(111, 163, 154, 0.1); border: 1px solid rgba(111, 163, 154, 0.4);
+    color: #9bc5b9;
+  }
+  .settings-test-result.bad {
+    background: rgba(216, 90, 48, 0.08); border: 1px solid rgba(216, 90, 48, 0.35);
+    color: #e89977;
+  }
+  .settings-test-result strong { font-weight: 500; }
+  .settings-test-result .check-line { display: flex; align-items: flex-start; gap: 8px; margin-top: 6px; }
+  .settings-test-result .check-line:first-of-type { margin-top: 0; }
+  .settings-test-result .mark { flex-shrink: 0; width: 16px; }
+
+  @keyframes fadeIn { to { opacity: 1; } }
+
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--line-2); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--ink-low); }
+</style>
+</head>
+<body>
+
+<canvas id="particles"></canvas>
+
+<div class="topbar">
+  <div class="brand" id="brand">
+    <span class="mark">Our Families</span>
+    <span class="sub">a living graph</span>
+  </div>
+  <div class="top-actions">
+    <div class="search-wrap">
+      <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>
+      </svg>
+      <input type="text" class="search" id="search" placeholder="Search anyone…" autocomplete="off">
+      <div class="search-results" id="searchResults"></div>
+    </div>
+    <button class="icon-btn" id="statsBtn" title="Family statistics">∑</button>
+    <button class="icon-btn" id="timelineBtn" title="Timeline mode">⏱</button>
+    <button class="icon-btn" id="soundBtn" title="Toggle ambient sound">♪</button>
+    <button class="icon-btn" id="settingsBtn" title="Connect a Google Sheet">⚙</button>
+  </div>
+</div>
+
+<!-- Galaxy view -->
+<div class="galaxy" id="galaxy">
+  <div class="galaxy-title">
+    <h1>Three families, one graph</h1>
+    <div class="deck">Watwani · Sidhwani · Makrani</div>
+  </div>
+  <div class="galaxy-inner">
+    <div class="cluster-line" style="top: 165px; left: 175px; width: 235px; transform: rotate(35deg);"></div>
+    <div class="cluster-line" style="top: 165px; left: 380px; width: 235px; transform: rotate(-35deg);"></div>
+    <div class="cluster-line" style="top: 330px; left: 185px; width: 410px; transform: rotate(0deg);"></div>
+
+    <div class="cluster cl-watwani">
+      <div class="orbit" id="orbit1"></div>
+      <div class="label">Watwani</div>
+      <div class="count" id="ct-watwani">9 people</div>
+    </div>
+    <div class="cluster cl-sidhwani">
+      <div class="orbit" id="orbit2"></div>
+      <div class="label">Sidhwani</div>
+      <div class="count" id="ct-sidhwani">7 people</div>
+    </div>
+    <div class="cluster cl-makrani">
+      <div class="orbit" id="orbit3"></div>
+      <div class="label">Makrani</div>
+      <div class="count" id="ct-makrani">6 people</div>
+    </div>
+  </div>
+  <div class="galaxy-hint">click any family · or press <span class="key">space</span> to enter</div>
+  <div class="galaxy-stats">
+    <div class="stat"><div class="num" id="gs-people">22</div><div class="lab">people</div></div>
+    <div class="stat"><div class="num" id="gs-gens">4</div><div class="lab">generations</div></div>
+    <div class="stat"><div class="num" id="gs-links">28</div><div class="lab">connections</div></div>
+    <div class="stat"><div class="num" id="gs-marriages">2</div><div class="lab">cross-family bonds</div></div>
+  </div>
+</div>
+
+<!-- Tree view -->
+<div class="tree-view" id="treeView">
+  <button class="tree-back" id="treeBack">
+    <span>←</span><span>Galaxy</span>
+  </button>
+  <div class="tree-toolbar">
+    <button class="active" data-view="all">All</button>
+    <button data-view="watwani">Watwani</button>
+    <button data-view="sidhwani">Sidhwani</button>
+    <button data-view="makrani">Makrani</button>
+    <div class="sep"></div>
+    <button data-view="connect">Find path</button>
+    <div class="sep"></div>
+    <button id="layoutToggle" title="Switch layout">By generation</button>
+  </div>
+  <div class="connect-mode-banner" id="connectBanner">Pick the first person…</div>
+  <div class="focus-banner" id="focusBanner">
+    <span class="label">Centered on</span>
+    <span class="who" id="focusWho">—</span>
+    <button id="focusClear">Reset</button>
+  </div>
+
+  <div class="canvas-wrap" id="canvasWrap">
+    <div class="canvas" id="canvas"></div>
+  </div>
+
+  <div class="minimap" id="minimap">
+    <canvas id="minimapCanvas" width="200" height="140"></canvas>
+    <div class="minimap-viewport" id="minimapViewport"></div>
+    <div class="minimap-label">map</div>
+  </div>
+
+  <div class="tree-zoom">
+    <button id="zoomIn" title="Zoom in (+)">+</button>
+    <button id="zoomOut" title="Zoom out (−)">−</button>
+    <button class="fit" id="zoomFit" title="Fit (F)">FIT</button>
+  </div>
+
+  <div class="timeline-scrubber" id="timelineScrubber">
+    <div class="ts-head">
+      <div class="ts-title">Time travel</div>
+      <div class="ts-year" id="tsYear">2026</div>
+    </div>
+    <div class="ts-bar">
+      <div class="ts-track"></div>
+      <div class="ts-fill" id="tsFill"></div>
+      <div class="ts-thumb" id="tsThumb"></div>
+      <input type="range" class="ts-input" id="tsInput" min="1930" max="2026" value="2026">
+    </div>
+    <div class="ts-events" id="tsEvents"></div>
+    <div class="ts-legend">
+      <span>1930</span><span>1960</span><span>1990</span><span>today</span>
+    </div>
+  </div>
+</div>
+
+<!-- Person panel -->
+<div class="panel-backdrop" id="panelBackdrop"></div>
+<div class="panel" id="panel">
+  <button class="panel-close" id="panelClose">×</button>
+  <div id="panelContent"></div>
+</div>
+
+<!-- Stats panel -->
+<div class="stats-panel" id="statsPanel">
+  <button class="panel-close" id="statsClose">×</button>
+  <div class="stats-head">
+    <h2>Family in numbers</h2>
+    <div class="sub">the graph, summarised</div>
+  </div>
+  <div class="stats-body" id="statsBody"></div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- Settings dialog -->
+<div class="settings-backdrop" id="settingsBackdrop"></div>
+<div class="settings-dialog" id="settingsDialog">
+  <button class="panel-close" id="settingsClose">×</button>
+  <div class="settings-head">
+    <h2>Connect a Google Sheet</h2>
+    <div class="sub">Edit your data in Google Sheets — the site reads from there</div>
+  </div>
+  <div class="settings-body">
+    <div class="settings-field">
+      <label>Google Sheet ID</label>
+      <input type="text" id="cfg-sheet" placeholder="e.g. 1AbCdEf...xYz" autocomplete="off">
+      <div class="settings-hint">From the URL: <code>docs.google.com/spreadsheets/d/<strong>SHEET_ID_HERE</strong>/edit</code></div>
+    </div>
+    <div class="settings-field">
+      <label>People tab name</label>
+      <input type="text" id="cfg-people-tab" placeholder="People" autocomplete="off">
+    </div>
+    <div class="settings-field">
+      <label>Relationships tab name</label>
+      <input type="text" id="cfg-rel-tab" placeholder="Relationships" autocomplete="off">
+    </div>
+    <div class="settings-field">
+      <label>Stories tab name</label>
+      <input type="text" id="cfg-stories-tab" placeholder="Stories" autocomplete="off">
+    </div>
+    <div class="settings-note">
+      <strong>Don't forget:</strong> in Google Sheets do <em>File → Share → Publish to web → Comma-separated values → Publish</em> first.
+    </div>
+    <div class="settings-actions">
+      <button class="settings-btn primary" id="settingsSave">Save & reload</button>
+      <button class="settings-btn" id="settingsTest">Test connection</button>
+      <button class="settings-btn" id="settingsClear">Clear</button>
+    </div>
+    <div class="settings-test-result" id="settingsTestResult"></div>
+    <div class="settings-current" id="settingsCurrent"></div>
+  </div>
+</div>
+
+<script>
+const DEFAULT_CONFIG = {
+  sheetId: '',
+  peopleTab: 'People',
+  relationshipsTab: 'Relationships',
+  storiesTab: 'Stories',
+  peopleGid: '',
+  relationshipsGid: '',
+  storiesGid: '',
+  families: ['watwani', 'sidhwani', 'makrani'],
+};
+
+let SHEET_CONFIG = { ...DEFAULT_CONFIG };
+
+async function loadConfig() {
+  try {
+    const r = await fetch('config.json', { cache: 'no-store' });
+    if (r.ok) {
+      const cfg = await r.json();
+      SHEET_CONFIG = { ...DEFAULT_CONFIG, ...cfg };
+      console.log('Loaded config.json');
+    }
+  } catch (e) {
+    console.log('No config.json found (normal when opening file directly) — checking localStorage');
+  }
+
+  try {
+    const stored = localStorage.getItem('familyTreeConfig');
+    if (stored) {
+      const cfg = JSON.parse(stored);
+      SHEET_CONFIG = { ...SHEET_CONFIG, ...cfg };
+      console.log('Loaded config from localStorage');
+    }
+  } catch (e) {}
+
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('sheet')) SHEET_CONFIG.sheetId = params.get('sheet');
+  if (params.get('people')) SHEET_CONFIG.peopleGid = params.get('people');
+  if (params.get('relations')) SHEET_CONFIG.relationshipsGid = params.get('relations');
+  if (params.get('stories')) SHEET_CONFIG.storiesGid = params.get('stories');
+  if (params.get('peopleTab')) SHEET_CONFIG.peopleTab = params.get('peopleTab');
+  if (params.get('relationsTab')) SHEET_CONFIG.relationshipsTab = params.get('relationsTab');
+  if (params.get('storiesTab')) SHEET_CONFIG.storiesTab = params.get('storiesTab');
+}
+
+function saveConfigLocal(cfg) {
+  try {
+    localStorage.setItem('familyTreeConfig', JSON.stringify(cfg));
+  } catch (e) {
+    console.error('Could not save config:', e);
+  }
+}
+
+const DEMO_PEOPLE = [
+  { id: 'W01', name: 'Person 1', fam: 'watwani', gender: 'M', role: 'Patriarch', born: 1935, died: 2015, location: 'Hyderabad, Sindh', bio: 'The first to settle here. Crossed the border with nothing but courage and built everything from the ground up.' },
+  { id: 'W02', name: 'Person 2', fam: 'watwani', gender: 'F', role: 'Matriarch', born: 1938, died: 2018, location: 'Hyderabad, Sindh', bio: 'Held the family together through every decade. Cooked for fifty at a time without complaint.' },
+  { id: 'W03', name: 'Person 3', fam: 'watwani', gender: 'M', role: 'The strategist', born: 1962, location: 'Mumbai', bio: 'Moved the family business to Mumbai in the early 80s.' },
+  { id: 'W04', name: 'Person 4', fam: 'watwani', gender: 'F', role: 'The artist', born: 1965, location: 'Pune', bio: 'Studied design in Paris and came home with stories.' },
+  { id: 'W05', name: 'Person 5', fam: 'watwani', gender: 'M', role: 'The traveller', born: 1968, location: 'Bengaluru', bio: 'Has been to forty countries and still counts.' },
+  { id: 'W06', name: 'Person 6', fam: 'watwani', gender: 'M', role: '', born: 1992, location: 'Bengaluru', bio: 'Senior Data Scientist. Building this tree because someone had to.' },
+  { id: 'W07', name: 'Person 7', fam: 'watwani', gender: 'M', role: 'The musician', born: 1995, location: 'Mumbai', bio: 'The musician of the new generation.' },
+  { id: 'W08', name: 'Person 8', fam: 'watwani', gender: 'F', role: '', born: 1990, location: 'Pune', bio: 'Doctor. Started a free clinic in her thirties.' },
+  { id: 'W09', name: 'Person 9', fam: 'watwani', gender: 'F', role: '', born: 2022, location: 'Bengaluru', bio: 'The newest chapter.' },
+
+  { id: 'S01', name: 'Person 10', fam: 'sidhwani', gender: 'M', role: 'The poet', born: 1932, died: 2010, location: 'Karachi', bio: 'A poet who became a businessman to feed his children. Wrote sonnets in his free time.' },
+  { id: 'S02', name: 'Person 11', fam: 'sidhwani', gender: 'F', role: '', born: 1936, died: 2012, location: 'Karachi', bio: 'Spoke five languages. Said love was the sixth.' },
+  { id: 'S03', name: 'Person 12', fam: 'sidhwani', gender: 'F', maiden_name: 'Sidhwani', born_fam: 'sidhwani', role: '', born: 1965, location: 'Mumbai', bio: 'Born Sidhwani, married into the Watwanis. Carries both names with pride.' },
+  { id: 'S04', name: 'Person 13', fam: 'sidhwani', gender: 'M', role: 'The builder', born: 1963, location: 'Delhi', bio: 'Civil engineer who built three bridges and a school.' },
+  { id: 'S05', name: 'Person 14', fam: 'sidhwani', gender: 'F', role: '', born: 1968, location: 'Ahmedabad', bio: 'Runs a bookshop. Refuses to go digital.' },
+  { id: 'S06', name: 'Person 15', fam: 'sidhwani', gender: 'M', role: '', born: 1991, location: 'Delhi', bio: 'Architect. Specialises in restoring colonial-era buildings.' },
+  { id: 'S07', name: 'Person 16', fam: 'sidhwani', gender: 'F', role: '', born: 1994, location: 'Ahmedabad', bio: 'Filmmaker. Won a regional award for her first documentary.' },
+
+  { id: 'M01', name: 'Person 17', fam: 'makrani', gender: 'M', role: 'Patriarch', born: 1940, location: 'Jaipur', bio: 'Started with one textile shop and ended up with forty. The patriarch with patience.' },
+  { id: 'M02', name: 'Person 18', fam: 'makrani', gender: 'F', role: '', born: 1944, location: 'Jaipur', bio: 'Has never raised her voice. Has never needed to.' },
+  { id: 'M03', name: 'Person 19', fam: 'makrani', gender: 'M', role: 'The philosopher', born: 1966, location: 'Jaipur', bio: 'Took over the family business and tripled it. Reads philosophy on weekends.' },
+  { id: 'M04', name: 'Person 20', fam: 'makrani', gender: 'F', maiden_name: '', born_fam: '', role: '', born: 1970, location: 'Jaipur', bio: 'A force of nature. Manages the household and the family charity.' },
+  { id: 'M05', name: 'Person 21', fam: 'makrani', gender: 'F', maiden_name: 'Makrani', born_fam: 'makrani', role: '', born: 1994, location: 'Bengaluru', bio: 'Born Makrani, married into the Watwanis. Brilliant. Funny. The reason this site is well-designed.' },
+  { id: 'M06', name: 'Person 22', fam: 'makrani', gender: 'M', role: 'The chef', born: 1996, location: 'Jaipur', bio: 'Studying to be a chef. Has already cooked for the Maharaja once.' },
+];
+
+const DEMO_RELATIONS = [
+  { a: 'W01', b: 'W02', type: 'spouse', year: 1958 },
+  { a: 'W01', b: 'W03', type: 'parent' }, { a: 'W02', b: 'W03', type: 'parent' },
+  { a: 'W01', b: 'W04', type: 'parent' }, { a: 'W02', b: 'W04', type: 'parent' },
+  { a: 'W01', b: 'W05', type: 'parent' }, { a: 'W02', b: 'W05', type: 'parent' },
+  { a: 'W03', b: 'W06', type: 'parent' },
+  { a: 'W03', b: 'W07', type: 'parent' },
+  { a: 'W04', b: 'W08', type: 'parent' },
+  { a: 'W06', b: 'W09', type: 'parent' },
+
+  { a: 'S01', b: 'S02', type: 'spouse', year: 1956 },
+  { a: 'S01', b: 'S03', type: 'parent' }, { a: 'S02', b: 'S03', type: 'parent' },
+  { a: 'S01', b: 'S04', type: 'parent' }, { a: 'S02', b: 'S04', type: 'parent' },
+  { a: 'S01', b: 'S05', type: 'parent' }, { a: 'S02', b: 'S05', type: 'parent' },
+  { a: 'S04', b: 'S06', type: 'parent' },
+  { a: 'S05', b: 'S07', type: 'parent' },
+
+  { a: 'M01', b: 'M02', type: 'spouse', year: 1963 },
+  { a: 'M01', b: 'M03', type: 'parent' }, { a: 'M02', b: 'M03', type: 'parent' },
+  { a: 'M03', b: 'M04', type: 'spouse', year: 1993 },
+  { a: 'M03', b: 'M05', type: 'parent' }, { a: 'M04', b: 'M05', type: 'parent' },
+  { a: 'M03', b: 'M06', type: 'parent' }, { a: 'M04', b: 'M06', type: 'parent' },
+
+  { a: 'W03', b: 'S03', type: 'spouse', cross: true, year: 1989 },
+  { a: 'S03', b: 'W06', type: 'parent' },
+  { a: 'S03', b: 'W07', type: 'parent' },
+  { a: 'W06', b: 'M05', type: 'spouse', cross: true, year: 2020 },
+  { a: 'M05', b: 'W09', type: 'parent' },
+];
+
+const DEMO_STORIES = {
+  'W01': [
+    { year: 1935, title: 'Born', desc: 'In old Hyderabad, before the lines were drawn.' },
+    { year: 1947, title: 'The journey', desc: 'Carried the family across the border with nothing but courage.' },
+    { year: 1955, title: 'First home', desc: 'Built three rooms. The foundation of everything that followed.' },
+    { year: 1958, title: 'Married', desc: 'They met at a wedding. Wrote letters for two years before.' },
+  ],
+  'W06': [
+    { year: 1992, title: 'Born', desc: 'A winter morning in Mumbai.' },
+    { year: 2014, title: 'First job', desc: 'Data analytics. The numbers always made sense.' },
+    { year: 2020, title: 'Married', desc: 'Two families became one — Watwani meets Makrani.' },
+    { year: 2022, title: 'Became a parent', desc: 'Began writing the next chapter.' },
+  ],
+  'S03': [
+    { year: 1965, title: 'Born', desc: 'Last daughter of the Sidhwanis.' },
+    { year: 1989, title: 'Married', desc: 'Married into the Watwanis. Kept her maiden name in her heart.' },
+    { year: 1992, title: 'First child', desc: 'Became a mother. Found her purpose.' },
+  ],
+  'M05': [
+    { year: 1994, title: 'Born', desc: 'In Jaipur, the city of palaces.' },
+    { year: 2016, title: 'Career launched', desc: 'Joined a design firm in Bengaluru.' },
+    { year: 2020, title: 'Married', desc: 'Watwani by marriage, Makrani by blood.' },
+    { year: 2022, title: 'Motherhood', desc: 'A new lineage begins.' },
+  ],
+};
+
+const DEFAULT_FAM_COLORS = {
+  watwani: { color: '#d4a574', border: 'rgba(212, 165, 116, 0.3)', bg: 'rgba(212, 165, 116, 0.1)', hex: '#d4a574', glow: 'rgba(212, 165, 116, 0.4)' },
+  sidhwani: { color: '#b87a9c', border: 'rgba(184, 122, 156, 0.3)', bg: 'rgba(184, 122, 156, 0.1)', hex: '#b87a9c', glow: 'rgba(184, 122, 156, 0.4)' },
+  makrani: { color: '#6fa39a', border: 'rgba(111, 163, 154, 0.3)', bg: 'rgba(111, 163, 154, 0.1)', hex: '#6fa39a', glow: 'rgba(111, 163, 154, 0.4)' },
+};
+
+const EXTRA_PALETTE = [
+  '#a89bd8', '#e8a87c', '#85ccb8', '#d49a9a', '#9ab8d6', '#c2b07a', '#b8a0c8', '#8fb98a'
+];
+
+let FAM_COLORS = { ...DEFAULT_FAM_COLORS };
+
+function hexToRgba(hex, alpha) {
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+
+function ensureFamilyColors() {
+  const allFams = new Set(PEOPLE.map(p => p.fam).filter(f => f));
+  let extraIdx = 0;
+  allFams.forEach(f => {
+    if (!FAM_COLORS[f]) {
+      const hex = EXTRA_PALETTE[extraIdx++ % EXTRA_PALETTE.length];
+      FAM_COLORS[f] = {
+        color: hex,
+        border: hexToRgba(hex, 0.3),
+        bg: hexToRgba(hex, 0.1),
+        hex: hex,
+        glow: hexToRgba(hex, 0.4),
+      };
+      injectFamilyStyles(f, hex);
+    }
+  });
+}
+
+function injectFamilyStyles(fam, hex) {
+  const style = document.createElement('style');
+  style.textContent = `
+    .node.fam-${fam} { --node-border: ${hexToRgba(hex, 0.3)}; --node-glow: ${hex}; --node-text: ${hex}; --node-glow-soft: ${hexToRgba(hex, 0.18)}; }
+    .panel-connection.fam-${fam} .pc-avatar { color: ${hex}; }
+    .kin-person.fam-${fam} .kin-avatar { color: ${hex}; }
+    .search-item.fam-${fam} .avatar { color: ${hex}; }
+    .stat-bar.fam-${fam} .bar-fill { background: ${hex}; }
+  `;
+  document.head.appendChild(style);
+}
+
+let PEOPLE = DEMO_PEOPLE;
+let RELATIONS = DEMO_RELATIONS;
+let STORIES = DEMO_STORIES;
+
+function parseCSV(text) {
+  const rows = [];
+  let row = [], cell = '', inQuotes = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i], n = text[i+1];
+    if (c === '"' && inQuotes && n === '"') { cell += '"'; i++; }
+    else if (c === '"') { inQuotes = !inQuotes; }
+    else if (c === ',' && !inQuotes) { row.push(cell); cell = ''; }
+    else if ((c === '\n' || c === '\r') && !inQuotes) {
+      if (c === '\r' && n === '\n') i++;
+      row.push(cell); rows.push(row); row = []; cell = '';
+    } else { cell += c; }
+  }
+  if (cell || row.length) { row.push(cell); rows.push(row); }
+  if (!rows.length) return [];
+
+  let headerRow = rows[0];
+  const corruptedHeader = headerRow.some(h => h.includes(' ') && /^[a-z_]+\s+[A-Z]/.test(h.trim()));
+  if (corruptedHeader) {
+    console.warn('[CSV] Detected corrupted header from Google Sheets Table feature. Auto-fixing.');
+    headerRow = headerRow.map(h => h.trim().split(/\s+/)[0]);
+  }
+
+  const headers = headerRow.map(h => h.trim().toLowerCase().replace(/\s+/g, '_'));
+  return rows.slice(1).filter(r => r.some(c => c.trim())).map(r => {
+    const obj = {};
+    headers.forEach((h, i) => obj[h] = (r[i] || '').trim());
+    return obj;
+  });
+}
+
+async function fetchSheetCSV(opts) {
+  const id = SHEET_CONFIG.sheetId;
+  let url;
+  if (opts.gid) {
+    url = `https://docs.google.com/spreadsheets/d/${id}/export?format=csv&gid=${opts.gid}`;
+  } else if (opts.tab) {
+    url = `https://docs.google.com/spreadsheets/d/${id}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(opts.tab)}`;
+  } else {
+    throw new Error('Need either gid or tab');
+  }
+  console.log('[Sheet] Fetching:', url);
+  let r;
+  try {
+    r = await fetch(url);
+  } catch (netErr) {
+    if (window.location.protocol === 'file:') {
+      console.log('[Sheet] file:// blocked direct fetch, trying JSONP fallback');
+      return await fetchSheetJSONP(opts);
+    }
+    throw new Error(`Network error — check internet connection. (${netErr.message})`);
+  }
+  if (!r.ok) {
+    if (r.status === 404) throw new Error(`Sheet not found. The Sheet ID "${id.slice(0, 20)}..." doesn't exist or you don't have access.`);
+    if (r.status === 401 || r.status === 403) throw new Error(`Sheet not published. In Google Sheets do: File → Share → Publish to web → CSV → Publish.`);
+    throw new Error(`Sheet fetch failed with status ${r.status}`);
+  }
+  const text = await r.text();
+  if (text.trim().startsWith('<')) {
+    throw new Error(`Got an HTML page instead of CSV. The sheet probably isn't published to web. In Google Sheets: File → Share → Publish to web → CSV → Publish.`);
+  }
+  if (!text.trim()) {
+    throw new Error(`Tab "${opts.tab || 'gid=' + opts.gid}" is empty or doesn't exist.`);
+  }
+  return parseCSV(text);
+}
+
+let jsonpCounter = 0;
+async function fetchSheetJSONP(opts) {
+  const id = SHEET_CONFIG.sheetId;
+  const tab = opts.tab || 'Sheet1';
+  const cbName = '_sheetCb' + (++jsonpCounter);
+  const url = `https://docs.google.com/spreadsheets/d/${id}/gviz/tq?tqx=out:json;responseHandler:${cbName}&sheet=${encodeURIComponent(tab)}`;
+  return new Promise((resolve, reject) => {
+    const timeout = setTimeout(() => {
+      reject(new Error('JSONP timeout — is the sheet published?'));
+      cleanup();
+    }, 12000);
+    function cleanup() {
+      try { delete window[cbName]; } catch (e) { window[cbName] = undefined; }
+      if (script.parentNode) script.parentNode.removeChild(script);
+      clearTimeout(timeout);
+    }
+    window[cbName] = (data) => {
+      cleanup();
+      try {
+        const cols = data.table.cols.map(c => (c.label || c.id || '').trim().toLowerCase().replace(/\s+/g, '_'));
+        const rows = data.table.rows.map(r => {
+          const obj = {};
+          r.c.forEach((cell, i) => {
+            obj[cols[i]] = cell ? (cell.f || cell.v || '').toString().trim() : '';
+          });
+          return obj;
+        });
+        resolve(rows);
+      } catch (e) {
+        reject(new Error('Could not parse sheet data: ' + e.message));
+      }
+    };
+    const script = document.createElement('script');
+    script.src = url;
+    script.onerror = () => {
+      cleanup();
+      reject(new Error('Could not load sheet — check Sheet ID and that it is published to web.'));
+    };
+    document.head.appendChild(script);
+  });
+}
+
+async function loadFromSheet() {
+  if (!SHEET_CONFIG.sheetId || SHEET_CONFIG.sheetId === 'PASTE_YOUR_GOOGLE_SHEET_ID_HERE') return false;
+  try {
+    showToast('Loading from Google Sheet…');
+    console.log('[Sheet] Starting load with config:', SHEET_CONFIG);
+
+    const peopleOpts = SHEET_CONFIG.peopleGid ? { gid: SHEET_CONFIG.peopleGid } : { tab: SHEET_CONFIG.peopleTab };
+    const relOpts = SHEET_CONFIG.relationshipsGid ? { gid: SHEET_CONFIG.relationshipsGid } : { tab: SHEET_CONFIG.relationshipsTab };
+    const storyOpts = SHEET_CONFIG.storiesGid ? { gid: SHEET_CONFIG.storiesGid } : { tab: SHEET_CONFIG.storiesTab };
+
+    let peopleRows;
+    try {
+      peopleRows = await fetchSheetCSV(peopleOpts);
+      console.log(`[Sheet] People tab loaded: ${peopleRows.length} rows`);
+      if (peopleRows.length > 0) console.log('[Sheet] First row keys:', Object.keys(peopleRows[0]));
+    } catch (e) {
+      showToast(`People tab: ${e.message}`);
+      console.error('[Sheet] People tab failed:', e);
+      return false;
+    }
+
+    const [relRows, storyRows] = await Promise.all([
+      fetchSheetCSV(relOpts).catch(e => { console.warn('[Sheet] Relationships tab failed:', e.message); return []; }),
+      fetchSheetCSV(storyOpts).catch(e => { console.warn('[Sheet] Stories tab failed:', e.message); return []; }),
+    ]);
+    console.log(`[Sheet] Relationships loaded: ${relRows.length} rows. Stories: ${storyRows.length}.`);
+
+    PEOPLE = peopleRows.map(r => ({
+      id: r.id,
+      name: r.name,
+      maiden_name: r.maiden_name || '',
+      fam: (r.family || '').toLowerCase(),
+      born_fam: (r.born_family || r.family || '').toLowerCase(),
+      gender: (r.gender || '').toUpperCase().charAt(0) || 'X',
+      role: r.role || '',
+      born: parseInt(r.born) || null,
+      died: r.died ? parseInt(r.died) : undefined,
+      location: r.location || '',
+      photo_url: r.photo_url || '',
+      bio: r.bio || '',
+    })).filter(p => p.id && p.name);
+
+    console.log(`%c[Sheet] Raw relationship rows from sheet (first 5):`, 'color: #c9a961');
+    relRows.slice(0, 5).forEach((r, i) => console.log(`  Row ${i}:`, r));
+    if (relRows.length > 0) console.log('[Sheet] Keys in first relationship row:', Object.keys(relRows[0]));
+
+    RELATIONS = relRows.map(r => {
+      let type = (r.type || '').toLowerCase().trim();
+      if (type === 'father' || type === 'mother' || type === 'child' || type === 'son' || type === 'daughter') type = 'parent';
+      if (type === 'husband' || type === 'wife' || type === 'married' || type === 'marriage') type = 'spouse';
+      return {
+        a: (r.person_a || '').trim(),
+        b: (r.person_b || '').trim(),
+        type,
+        year: r.year ? parseInt(r.year) : undefined,
+        cross: false,
+      };
+    }).filter(r => r.a && r.b && (r.type === 'parent' || r.type === 'spouse'));
+
+    const idSet = new Set(PEOPLE.map(p => p.id));
+    const normalize = (s) => (s || '').toString().toLowerCase().replace(/\s+/g, ' ').trim();
+    const nameToId = {};
+    PEOPLE.forEach(p => {
+      nameToId[normalize(p.name)] = p.id;
+    });
+
+    let resolvedCount = 0;
+    let unresolvedNames = new Set();
+    RELATIONS.forEach(r => {
+      if (!idSet.has(r.a)) {
+        const looked = nameToId[normalize(r.a)];
+        if (looked) { r.a = looked; resolvedCount++; }
+        else unresolvedNames.add(`"${r.a}"`);
+      }
+      if (!idSet.has(r.b)) {
+        const looked = nameToId[normalize(r.b)];
+        if (looked) { r.b = looked; resolvedCount++; }
+        else unresolvedNames.add(`"${r.b}"`);
+      }
+    });
+
+    const validRels = RELATIONS.filter(r => idSet.has(r.a) && idSet.has(r.b));
+    const droppedCount = RELATIONS.length - validRels.length;
+    RELATIONS = validRels;
+
+    if (resolvedCount > 0) console.log(`%c[Sheet] Auto-resolved ${resolvedCount} name(s) to IDs in relationships`, 'color: #6fa39a');
+    if (droppedCount > 0) {
+      console.warn(`[Sheet] Dropped ${droppedCount} relationship row(s). Unknown people:`, [...unresolvedNames]);
+      console.warn('[Sheet] Known people in People sheet:', PEOPLE.map(p => `"${p.name}"`));
+    }
+    console.log(`%c[Sheet] FINAL: ${PEOPLE.length} people, ${RELATIONS.length} valid relationships`, 'color: #c9a961; font-size: 14px; font-weight: bold');
+
+    if (RELATIONS.length === 0 && PEOPLE.length > 0) {
+      console.error('%c[Sheet] PROBLEM: People loaded but NO relationships connected.', 'color: #d85a30; font-size: 14px; font-weight: bold');
+      console.error('Either:');
+      console.error('1. Your Relationships sheet uses names but they don\'t match People sheet names exactly');
+      console.error('2. The Relationships tab name is different from what config says');
+      console.error('3. The Relationships sheet has different column headers than expected (need: person_a, person_b, type)');
+      showToast(`Loaded ${PEOPLE.length} people but 0 relationships — open console (F12) for details`);
+    }
+
+    RELATIONS.forEach(r => {
+      const pa = PEOPLE.find(p => p.id === r.a);
+      const pb = PEOPLE.find(p => p.id === r.b);
+      if (r.type === 'spouse' && pa && pb && pa.fam !== pb.fam) r.cross = true;
+    });
+
+    STORIES = {};
+    storyRows.forEach(r => {
+      let pid = (r.person_id || '').trim();
+      if (!pid) return;
+      if (!idSet.has(pid)) {
+        const looked = nameToId[pid.toLowerCase()];
+        if (looked) pid = looked;
+        else return;
+      }
+      if (!STORIES[pid]) STORIES[pid] = [];
+      STORIES[pid].push({
+        year: parseInt(r.year),
+        title: r.title || '',
+        desc: r.description || r.desc || '',
+      });
+    });
+    Object.keys(STORIES).forEach(id => STORIES[id].sort((a,b) => a.year - b.year));
+
+    if (PEOPLE.length === 0) {
+      showToast(`Sheet loaded but no people found — check column names match the template`);
+      console.warn('[Sheet] No valid people parsed. Make sure your People tab has columns: id, name, family');
+      return false;
+    }
+
+    showToast(`Loaded ${PEOPLE.length} people from sheet`);
+    return true;
+  } catch (e) {
+    console.warn('Sheet load failed:', e);
+    showToast(`Sheet error: ${e.message}`);
+    return false;
+  }
+}
+
+function getPerson(id) { return PEOPLE.find(p => p.id === id); }
+function getParents(id) { return RELATIONS.filter(r => r.type === 'parent' && r.b === id).map(r => getPerson(r.a)); }
+function getChildren(id) { return RELATIONS.filter(r => r.type === 'parent' && r.a === id).map(r => getPerson(r.b)); }
+function getSpouses(id) {
+  return RELATIONS.filter(r => r.type === 'spouse' && (r.a === id || r.b === id))
+    .map(r => getPerson(r.a === id ? r.b : r.a));
+}
+function getSiblings(id) {
+  const parents = getParents(id);
+  if (!parents.length) return [];
+  const sibs = new Set();
+  parents.forEach(p => getChildren(p.id).forEach(c => { if (c.id !== id) sibs.add(c.id); }));
+  return [...sibs].map(getPerson);
+}
+function getAllConnections(id) {
+  const out = [];
+  getParents(id).forEach(p => out.push({ person: p, rel: 'Parent' }));
+  getSpouses(id).forEach(p => out.push({ person: p, rel: 'Spouse' }));
+  getChildren(id).forEach(p => out.push({ person: p, rel: 'Child' }));
+  getSiblings(id).forEach(p => out.push({ person: p, rel: 'Sibling' }));
+  return out;
+}
+
+function getGrandparents(id) {
+  const out = new Set();
+  getParents(id).forEach(p => getParents(p.id).forEach(gp => out.add(gp.id)));
+  return [...out].map(getPerson);
+}
+function getGrandchildren(id) {
+  const out = new Set();
+  getChildren(id).forEach(c => getChildren(c.id).forEach(gc => out.add(gc.id)));
+  return [...out].map(getPerson);
+}
+function getUncles(id) {
+  const out = new Set();
+  getParents(id).forEach(p => getSiblings(p.id).forEach(u => out.add(u.id)));
+  getParents(id).forEach(p => getSpouses(p.id).forEach(sp => {
+    getSiblings(sp.id).forEach(u => out.add(u.id));
+  }));
+  return [...out].map(getPerson);
+}
+function getNephews(id) {
+  const out = new Set();
+  getSiblings(id).forEach(s => getChildren(s.id).forEach(n => out.add(n.id)));
+  getSpouses(id).forEach(sp => getSiblings(sp.id).forEach(s => {
+    getChildren(s.id).forEach(n => out.add(n.id));
+  }));
+  return [...out].map(getPerson);
+}
+function getCousins(id) {
+  const out = new Set();
+  getParents(id).forEach(p => getSiblings(p.id).forEach(u => {
+    getChildren(u.id).forEach(c => out.add(c.id));
+  }));
+  return [...out].map(getPerson);
+}
+function getInLaws(id) {
+  const out = new Set();
+  getSpouses(id).forEach(sp => getParents(sp.id).forEach(pl => out.add(pl.id)));
+  return [...out].map(getPerson);
+}
+
+function computeDepths() {
+  const depth = {};
+
+  PEOPLE.forEach(p => {
+    if (getParents(p.id).length > 0) return;
+    const spouses = getSpouses(p.id);
+    const spouseHasParents = spouses.some(sp => getParents(sp.id).length > 0);
+    if (!spouseHasParents) {
+      depth[p.id] = 0;
+    }
+  });
+
+  let changed = true, safety = 0;
+  while (changed && safety < 50) {
+    changed = false; safety++;
+    PEOPLE.forEach(p => {
+      if (depth[p.id] !== undefined) return;
+      const parents = getParents(p.id);
+      const parentDepths = parents.map(par => depth[par.id]).filter(d => d !== undefined);
+      if (parentDepths.length) {
+        depth[p.id] = Math.max(...parentDepths) + 1;
+        changed = true;
+        return;
+      }
+      const spouses = getSpouses(p.id);
+      for (const sp of spouses) {
+        if (depth[sp.id] !== undefined) {
+          depth[p.id] = depth[sp.id];
+          changed = true;
+          return;
+        }
+      }
+    });
+  }
+
+  PEOPLE.forEach(p => {
+    if (depth[p.id] === undefined) depth[p.id] = 0;
+  });
+
+  return depth;
+}
+
+let DEPTHS = {};
+function getDepth(id) { return DEPTHS[id] !== undefined ? DEPTHS[id] : 0; }
+
+const KINSHIP_TERMS = {
+  parent: { M: 'Father', F: 'Mother', X: 'Parent' },
+  parents: { plural: 'Parents' },
+  child: { M: 'Son', F: 'Daughter', X: 'Child' },
+  children: { plural: 'Children' },
+  spouse: { M: 'Husband', F: 'Wife', X: 'Spouse' },
+  sibling: { M: 'Brother', F: 'Sister', X: 'Sibling' },
+  siblings: { plural: 'Siblings' },
+  grandparent: { M: 'Grandfather', F: 'Grandmother', X: 'Grandparent' },
+  grandparents: { plural: 'Grandparents' },
+  grandchild: { M: 'Grandson', F: 'Granddaughter', X: 'Grandchild' },
+  grandchildren: { plural: 'Grandchildren' },
+  uncle: { M: 'Uncle', F: 'Aunt', X: 'Aunt/Uncle' },
+  uncles: { plural: 'Aunts & uncles' },
+  nephew: { M: 'Nephew', F: 'Niece', X: 'Niece/Nephew' },
+  nephews: { plural: 'Nieces & nephews' },
+  cousins: { plural: 'Cousins' },
+  inlaw: { M: 'Father-in-law', F: 'Mother-in-law', X: 'Parent-in-law' },
+  inlaws: { plural: 'In-laws' },
+};
+
+function genderTerm(termKey, person) {
+  const t = KINSHIP_TERMS[termKey];
+  if (!t) return termKey;
+  const g = (person && person.gender) || 'X';
+  return t[g] || t.X;
+}
+
+function getKinshipSummary(id) {
+  const p = getPerson(id);
+  if (!p) return [];
+  const groups = [];
+
+  const parents = getParents(id);
+  if (parents.length) groups.push({
+    label: parents.length === 1 ? genderTerm('parent', parents[0]) + ' of' : 'Child of',
+    inverseLabel: parents.length > 1 ? 'Parents' : null,
+    people: parents,
+    isMyRoleAsParent: false,
+    iAm: parents.length === 1 ? genderTerm('child', p) : genderTerm('child', p),
+  });
+
+  const spouses = getSpouses(id);
+  if (spouses.length) spouses.forEach(sp => groups.push({
+    label: genderTerm('spouse', p) + ' of',
+    people: [sp],
+    iAm: genderTerm('spouse', p),
+  }));
+
+  const siblings = getSiblings(id);
+  if (siblings.length) groups.push({
+    label: genderTerm('sibling', p) + ' of',
+    people: siblings,
+    iAm: genderTerm('sibling', p),
+  });
+
+  const children = getChildren(id);
+  if (children.length) groups.push({
+    label: genderTerm('parent', p) + ' of',
+    people: children,
+    iAm: genderTerm('parent', p),
+  });
+
+  const grandparents = getGrandparents(id);
+  if (grandparents.length) groups.push({
+    label: 'Grandchild of',
+    people: grandparents,
+    iAm: genderTerm('grandchild', p),
+  });
+
+  const grandchildren = getGrandchildren(id);
+  if (grandchildren.length) groups.push({
+    label: genderTerm('grandparent', p) + ' of',
+    people: grandchildren,
+    iAm: genderTerm('grandparent', p),
+  });
+
+  const uncles = getUncles(id);
+  if (uncles.length) groups.push({
+    label: 'Niece/nephew of',
+    people: uncles,
+    iAm: genderTerm('nephew', p),
+  });
+
+  const nephews = getNephews(id);
+  if (nephews.length) groups.push({
+    label: genderTerm('uncle', p) + ' of',
+    people: nephews,
+    iAm: genderTerm('uncle', p),
+  });
+
+  const cousins = getCousins(id);
+  if (cousins.length) groups.push({
+    label: 'Cousin of',
+    people: cousins,
+    iAm: 'Cousin',
+  });
+
+  const inlaws = getInLaws(id);
+  if (inlaws.length) groups.push({
+    label: 'Child-in-law of',
+    people: inlaws,
+    iAm: 'Child-in-law',
+  });
+
+  return groups;
+}
+
+function findPath(fromId, toId) {
+  if (fromId === toId) return [fromId];
+  const visited = new Set([fromId]);
+  const queue = [[fromId]];
+  while (queue.length) {
+    const path = queue.shift();
+    const last = path[path.length - 1];
+    const neighbors = [...getParents(last), ...getChildren(last), ...getSpouses(last), ...getSiblings(last)];
+    for (const n of neighbors) {
+      if (n.id === toId) return [...path, n.id];
+      if (!visited.has(n.id)) {
+        visited.add(n.id);
+        queue.push([...path, n.id]);
+      }
+    }
+  }
+  return null;
+}
+
+function describeRelationship(fromId, toId, path) {
+  if (!path || path.length < 2) return 'the same person';
+  const steps = [];
+  for (let i = 0; i < path.length - 1; i++) {
+    const a = path[i], b = path[i+1];
+    if (getParents(a).find(p => p.id === b)) steps.push('parent');
+    else if (getChildren(a).find(c => c.id === b)) steps.push('child');
+    else if (getSpouses(a).find(s => s.id === b)) steps.push('spouse');
+    else if (getSiblings(a).find(s => s.id === b)) steps.push('sibling');
+  }
+  const seq = steps.join(" → ");
+  return seq;
+}
+
+const galaxy = document.getElementById('galaxy');
+const treeView = document.getElementById('treeView');
+const canvas = document.getElementById('canvas');
+const canvasWrap = document.getElementById('canvasWrap');
+
+document.querySelectorAll('.cluster').forEach(cl => {
+  cl.addEventListener('click', () => enterTree('all'));
+});
+document.getElementById('brand').addEventListener('click', () => exitToGalaxy());
+document.getElementById('treeBack').addEventListener('click', exitToGalaxy);
+
+function enterTree(view) {
+  galaxy.classList.add('hidden');
+  treeView.classList.add('active');
+  setTimeout(() => renderTree(view), 250);
+}
+function exitToGalaxy() {
+  treeView.classList.remove('active');
+  galaxy.classList.remove('hidden');
+  focusId = null;
+  timelineMode = false;
+  document.getElementById('timelineScrubber').classList.remove('show');
+  document.getElementById('timelineBtn').classList.remove('active');
+}
+
+let focusId = null;
+let timelineYear = 2026;
+let timelineMode = false;
+
+let layoutMode = 'generation';
+
+function layoutGrid(filter) {
+  if (Object.keys(DEPTHS).length === 0) DEPTHS = computeDepths();
+
+  let people = filter === 'all' ? PEOPLE : PEOPLE.filter(p => p.fam === filter);
+  if (timelineMode) people = people.filter(p => p.born <= timelineYear);
+
+  const fams = ['watwani', 'sidhwani', 'makrani'];
+  const cols = { watwani: 1200, sidhwani: 400, makrani: 2000 };
+  if (filter !== 'all') cols[filter] = 1200;
+  const colGap = 180;
+  const positions = {};
+
+  if (layoutMode === 'year') {
+    const allBirths = people.map(p => p.born).filter(b => b);
+    if (!allBirths.length) return { people, positions };
+    const minYear = Math.min(...allBirths);
+    const maxYear = Math.max(...allBirths);
+    const yScale = 30;
+    const totalH = (maxYear - minYear) * yScale;
+
+    fams.forEach(fam => {
+      if (filter !== 'all' && filter !== fam) return;
+      const famPeople = people.filter(p => p.fam === fam).sort((a,b) => a.born - b.born);
+      const occupiedRows = {};
+      famPeople.forEach(p => {
+        const baseY = 300 + (p.born - minYear) * yScale;
+        let xOffset = 0;
+        const yKey = Math.round(baseY / 30) * 30;
+        if (!occupiedRows[yKey]) occupiedRows[yKey] = 0;
+        else { occupiedRows[yKey]++; xOffset = occupiedRows[yKey] * 80 * (occupiedRows[yKey] % 2 === 0 ? 1 : -1); }
+        positions[p.id] = { x: cols[fam] + xOffset, y: baseY };
+      });
+    });
+    return { people, positions, minYear, maxYear, yScale };
+  }
+
+  const rowGap = 200;
+  fams.forEach(fam => {
+    if (filter !== 'all' && filter !== fam) return;
+    const famPeople = people.filter(p => p.fam === fam);
+    const depths = [...new Set(famPeople.map(p => getDepth(p.id)))].sort((a, b) => a - b);
+    depths.forEach(d => {
+      const inDepth = famPeople.filter(p => getDepth(p.id) === d);
+
+      // Order: keep spouses adjacent, with the one who has parents (or earlier birth) first
+      const ordered = [];
+      const used = new Set();
+      const sortedByBirth = [...inDepth].sort((a, b) => (a.born || 9999) - (b.born || 9999));
+      sortedByBirth.forEach(p => {
+        if (used.has(p.id)) return;
+        ordered.push(p);
+        used.add(p.id);
+        // immediately place any spouse who is in this row
+        getSpouses(p.id).forEach(sp => {
+          if (!used.has(sp.id) && inDepth.find(x => x.id === sp.id)) {
+            ordered.push(sp);
+            used.add(sp.id);
+          }
+        });
+      });
+
+      const totalW = (ordered.length - 1) * colGap;
+      const startX = cols[fam] - totalW / 2;
+      ordered.forEach((p, i) => {
+        positions[p.id] = { x: startX + i * colGap, y: 300 + d * rowGap };
+      });
+    });
+  });
+  return { people, positions };
+}
+
+function layoutRadial(centerId) {
+  const dist = { [centerId]: 0 };
+  const queue = [centerId];
+  while (queue.length) {
+    const cur = queue.shift();
+    const neighbors = [...getParents(cur), ...getChildren(cur), ...getSpouses(cur), ...getSiblings(cur)];
+    for (const n of neighbors) {
+      if (dist[n.id] === undefined) {
+        dist[n.id] = dist[cur] + 1;
+        queue.push(n.id);
+      }
+    }
+  }
+
+  let people = PEOPLE.filter(p => dist[p.id] !== undefined);
+  if (timelineMode) people = people.filter(p => p.born <= timelineYear);
+
+  const rings = {};
+  people.forEach(p => {
+    const d = dist[p.id];
+    if (!rings[d]) rings[d] = [];
+    rings[d].push(p);
+  });
+
+  const centerX = 1200, centerY = 1000;
+  const ringSpacing = 290;
+  const positions = { [centerId]: { x: centerX, y: centerY } };
+
+  Object.keys(rings).map(Number).sort((a, b) => a - b).forEach(d => {
+    if (d === 0) return;
+    const ringPeople = rings[d];
+    const grouped = { watwani: [], sidhwani: [], makrani: [] };
+    ringPeople.forEach(p => grouped[p.fam].push(p));
+    const ordered = [...grouped.watwani, ...grouped.sidhwani, ...grouped.makrani];
+    const count = ordered.length;
+    const radius = d * ringSpacing;
+    const startAngle = -Math.PI / 2;
+    ordered.forEach((p, i) => {
+      const angle = startAngle + (i / count) * Math.PI * 2;
+      positions[p.id] = {
+        x: centerX + Math.cos(angle) * radius,
+        y: centerY + Math.sin(angle) * radius
+      };
+    });
+  });
+
+  return { people, positions };
+}
+
+let currentPositions = {};
+let currentPeople = [];
+
+function renderTree(view) {
+  canvas.innerHTML = '';
+  const isConnect = view === 'connect';
+
+  let people, positions;
+  if (focusId) {
+    ({ people, positions } = layoutRadial(focusId));
+    document.getElementById('focusBanner').classList.add('show');
+    document.getElementById('focusWho').textContent = getPerson(focusId).name;
+    document.getElementById('connectBanner').classList.remove('show');
+  } else {
+    const filter = isConnect ? 'all' : view;
+    ({ people, positions } = layoutGrid(filter));
+    document.getElementById('focusBanner').classList.remove('show');
+  }
+
+  RELATIONS.forEach((r, idx) => {
+    if (!positions[r.a] || !positions[r.b]) return;
+    const a = positions[r.a], b = positions[r.b];
+    const dx = b.x - a.x, dy = b.y - a.y;
+    const len = Math.sqrt(dx*dx + dy*dy);
+    const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+
+    const edge = document.createElement('div');
+    edge.className = 'edge';
+    if (r.type === 'spouse') edge.classList.add('marriage');
+    if (r.cross) edge.classList.add('cross');
+    edge.dataset.from = r.a; edge.dataset.to = r.b;
+    edge.style.left = a.x + 'px';
+    edge.style.top = a.y + 'px';
+    edge.style.width = len + 'px';
+    edge.style.transform = `rotate(${angle}deg)`;
+    edge.style.animationDelay = (idx * 0.025) + 's';
+    canvas.appendChild(edge);
+  });
+
+  people.forEach((p, idx) => {
+    const pos = positions[p.id];
+    if (!pos) return;
+    const node = document.createElement('div');
+    node.className = `node fam-${p.fam}` + (p.id === focusId ? ' focused' : '');
+    node.style.left = pos.x + 'px';
+    node.style.top = pos.y + 'px';
+    node.style.animationDelay = (idx * 0.035 + 0.2) + 's';
+    node.dataset.id = p.id;
+    const initial = p.name.match(/\d+/) ? p.name.match(/\d+/)[0] : p.name[0];
+    const isDeceasedInTimeline = timelineMode && p.died && p.died <= timelineYear;
+    const age = (p.died || (timelineMode ? timelineYear : 2026)) - p.born;
+
+    let displayRole = p.role || '';
+    if (!displayRole) {
+      const kids = getChildren(p.id).length;
+      const gkids = getGrandchildren(p.id).length;
+      if (gkids > 0) displayRole = genderTerm('grandparent', p);
+      else if (kids > 0) displayRole = genderTerm('parent', p);
+      else displayRole = genderTerm('child', p);
+    }
+
+    let genderDot = '';
+    if (p.gender === 'M') genderDot = '<div class="gender-dot male" title="Male">♂</div>';
+    else if (p.gender === 'F') genderDot = '<div class="gender-dot female" title="Female">♀</div>';
+    else genderDot = '<div class="gender-dot missing" title="Gender not set">?</div>';
+
+    node.innerHTML = `
+      <div class="node-card">
+        ${genderDot}
+        ${(p.died && (!timelineMode || isDeceasedInTimeline)) ? '<div class="deceased-dot"></div>' : ''}
+        <div class="photo">${initial}</div>
+        <div class="name">${p.name}</div>
+        <div class="role">${displayRole}</div>
+        ${timelineMode ? `<div class="age">${age} yrs</div>` : ''}
+      </div>
+    `;
+    node.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (isConnect) handleConnectPick(p.id);
+      else openPerson(p.id);
+    });
+    node.addEventListener('mouseenter', (e) => {
+      createRipple(pos.x, pos.y);
+    });
+    canvas.appendChild(node);
+  });
+
+  currentPositions = positions;
+  currentPeople = people;
+  setTimeout(() => { fitToView(); renderMinimap(); }, 60);
+}
+
+function createRipple(x, y) {
+  const r = document.createElement('div');
+  r.className = 'ripple';
+  r.style.left = x + 'px';
+  r.style.top = y + 'px';
+  canvas.appendChild(r);
+  setTimeout(() => r.remove(), 1200);
+}
+
+let panX = 0, panY = 0, zoom = 0.6;
+let isDragging = false, startX = 0, startY = 0, startPanX = 0, startPanY = 0;
+
+function applyTransform() {
+  canvas.style.transform = `translate(${panX}px, ${panY}px) scale(${zoom})`;
+  updateMinimapViewport();
+}
+
+function fitToView() {
+  const ids = Object.keys(currentPositions);
+  if (!ids.length) return;
+  let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+  ids.forEach(id => {
+    const p = currentPositions[id];
+    minX = Math.min(minX, p.x); maxX = Math.max(maxX, p.x);
+    minY = Math.min(minY, p.y); maxY = Math.max(maxY, p.y);
+  });
+  const padding = 100;
+  const contentW = (maxX - minX) + 160 + padding * 2;
+  const contentH = (maxY - minY) + 120 + padding * 2;
+  const viewW = canvasWrap.clientWidth;
+  const viewH = canvasWrap.clientHeight - 160;
+  zoom = Math.min(viewW / contentW, viewH / contentH, 1);
+  zoom = Math.max(zoom, 0.25);
+  const cx = (minX + maxX) / 2, cy = (minY + maxY) / 2;
+  panX = viewW / 2 - cx * zoom;
+  panY = (viewH / 2 + 80) - cy * zoom;
+  applyTransform();
+}
+
+canvasWrap.addEventListener('mousedown', (e) => {
+  if (e.target.closest('.node') || e.target.closest('.minimap')) return;
+  isDragging = true;
+  canvas.classList.add('dragging');
+  startX = e.clientX; startY = e.clientY;
+  startPanX = panX; startPanY = panY;
+});
+window.addEventListener('mousemove', (e) => {
+  if (!isDragging) return;
+  panX = startPanX + (e.clientX - startX);
+  panY = startPanY + (e.clientY - startY);
+  applyTransform();
+});
+window.addEventListener('mouseup', () => {
+  isDragging = false;
+  canvas.classList.remove('dragging');
+});
+
+canvasWrap.addEventListener('wheel', (e) => {
+  e.preventDefault();
+  const rect = canvasWrap.getBoundingClientRect();
+  const mx = e.clientX - rect.left, my = e.clientY - rect.top;
+  const oldZoom = zoom;
+  const delta = -e.deltaY * 0.001;
+  zoom = Math.max(0.2, Math.min(2.5, zoom * (1 + delta)));
+  panX = mx - (mx - panX) * (zoom / oldZoom);
+  panY = my - (my - panY) * (zoom / oldZoom);
+  canvas.classList.add('notransition');
+  applyTransform();
+  clearTimeout(window._zt);
+  window._zt = setTimeout(() => canvas.classList.remove('notransition'), 100);
+}, { passive: false });
+
+let touchStartDist = 0, touchStartZoom = 0;
+canvasWrap.addEventListener('touchstart', (e) => {
+  if (e.touches.length === 1) {
+    isDragging = true;
+    startX = e.touches[0].clientX; startY = e.touches[0].clientY;
+    startPanX = panX; startPanY = panY;
+  } else if (e.touches.length === 2) {
+    isDragging = false;
+    const dx = e.touches[0].clientX - e.touches[1].clientX;
+    const dy = e.touches[0].clientY - e.touches[1].clientY;
+    touchStartDist = Math.sqrt(dx*dx + dy*dy);
+    touchStartZoom = zoom;
+  }
+});
+canvasWrap.addEventListener('touchmove', (e) => {
+  e.preventDefault();
+  if (e.touches.length === 1 && isDragging) {
+    panX = startPanX + (e.touches[0].clientX - startX);
+    panY = startPanY + (e.touches[0].clientY - startY);
+    applyTransform();
+  } else if (e.touches.length === 2) {
+    const dx = e.touches[0].clientX - e.touches[1].clientX;
+    const dy = e.touches[0].clientY - e.touches[1].clientY;
+    const dist = Math.sqrt(dx*dx + dy*dy);
+    zoom = Math.max(0.2, Math.min(2.5, touchStartZoom * (dist / touchStartDist)));
+    applyTransform();
+  }
+}, { passive: false });
+canvasWrap.addEventListener('touchend', () => { isDragging = false; });
+
+document.getElementById('zoomIn').addEventListener('click', () => {
+  const oldZoom = zoom; zoom = Math.min(2.5, zoom * 1.25);
+  const cx = canvasWrap.clientWidth/2, cy = canvasWrap.clientHeight/2;
+  panX = cx - (cx - panX) * (zoom/oldZoom);
+  panY = cy - (cy - panY) * (zoom/oldZoom);
+  applyTransform();
+});
+document.getElementById('zoomOut').addEventListener('click', () => {
+  const oldZoom = zoom; zoom = Math.max(0.2, zoom * 0.8);
+  const cx = canvasWrap.clientWidth/2, cy = canvasWrap.clientHeight/2;
+  panX = cx - (cx - panX) * (zoom/oldZoom);
+  panY = cy - (cy - panY) * (zoom/oldZoom);
+  applyTransform();
+});
+document.getElementById('zoomFit').addEventListener('click', fitToView);
+window.addEventListener('resize', () => { if (treeView.classList.contains('active')) fitToView(); });
+
+document.getElementById('layoutToggle').addEventListener('click', () => {
+  const btn = document.getElementById('layoutToggle');
+  if (layoutMode === 'generation') {
+    layoutMode = 'year';
+    btn.textContent = 'By era';
+    btn.classList.add('active');
+    showToast('Layout: by birth year');
+  } else {
+    layoutMode = 'generation';
+    btn.textContent = 'By generation';
+    btn.classList.remove('active');
+    showToast('Layout: by generation');
+  }
+  const v = document.querySelector('.tree-toolbar button.active[data-view]').dataset.view;
+  renderTree(v);
+});
+
+document.querySelectorAll('.tree-toolbar button[data-view]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tree-toolbar button[data-view]').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const view = btn.dataset.view;
+    connectPicks = [];
+    focusId = null;
+    document.getElementById('connectBanner').classList.toggle('show', view === 'connect');
+    if (view === 'connect') document.getElementById('connectBanner').textContent = 'Pick the first person…';
+    renderTree(view);
+  });
+});
+
+let connectPicks = [];
+function handleConnectPick(id) {
+  connectPicks.push(id);
+  const banner = document.getElementById('connectBanner');
+  if (connectPicks.length === 1) {
+    document.querySelector(`.node[data-id="${id}"]`).classList.add('highlight');
+    banner.textContent = 'Now pick the second person…';
+    playTone(660, 0.08, 0.04);
+  } else if (connectPicks.length === 2) {
+    const path = findPath(connectPicks[0], connectPicks[1]);
+    if (!path) {
+      banner.textContent = 'No connection found — try again';
+      connectPicks = [];
+      document.querySelectorAll('.node').forEach(n => n.classList.remove('highlight'));
+      return;
+    }
+    document.querySelectorAll('.node').forEach(n => {
+      if (!path.includes(n.dataset.id)) n.classList.add('dim');
+    });
+    document.querySelectorAll('.edge').forEach(e => e.classList.add('dim'));
+    path.forEach((id, i) => {
+      const node = document.querySelector(`.node[data-id="${id}"]`);
+      if (node) {
+        node.classList.remove('dim');
+        setTimeout(() => node.classList.add('highlight'), i * 200);
+      }
+      if (i > 0) {
+        const a = path[i-1], b = path[i];
+        setTimeout(() => {
+          document.querySelectorAll('.edge').forEach(e => {
+            if ((e.dataset.from === a && e.dataset.to === b) || (e.dataset.from === b && e.dataset.to === a)) {
+              e.classList.remove('dim');
+              e.classList.add('highlight');
+            }
+          });
+          playTone(440 + i * 80, 0.1, 0.05);
+        }, i * 200);
+      }
+    });
+    const p1 = getPerson(connectPicks[0]);
+    const p2 = getPerson(connectPicks[1]);
+    setTimeout(() => {
+      banner.innerHTML = `<strong style="color:var(--gold-bright)">${p1.name}</strong> &nbsp;→&nbsp; <strong style="color:var(--gold-bright)">${p2.name}</strong> &nbsp;·&nbsp; ${path.length - 1} step${path.length > 2 ? 's' : ''}`;
+    }, path.length * 200);
+    connectPicks = [];
+  }
+}
+
+const panel = document.getElementById('panel');
+const panelBackdrop = document.getElementById('panelBackdrop');
+const panelContent = document.getElementById('panelContent');
+
+function openPerson(id) {
+  const p = getPerson(id);
+  const initial = p.name.match(/\d+/) ? p.name.match(/\d+/)[0] : p.name[0];
+  const connections = getAllConnections(id);
+  const stories = STORIES[id] || [];
+  const fc = FAM_COLORS[p.fam];
+
+  const years = p.died ? `${p.born}–${p.died}` : `${p.born}–present`;
+  const age = (p.died || 2026) - p.born;
+
+  panelContent.innerHTML = `
+    <div class="panel-head" style="--panel-color:${fc.color};--panel-border:${fc.border};--panel-bg:${fc.bg}">
+      <div class="panel-photo">${initial}</div>
+      <div class="panel-name">${p.name}</div>
+      ${p.maiden_name ? `<div class="panel-maiden">née ${p.maiden_name}</div>` : ''}
+      ${p.role ? `<div class="panel-meta">${p.role}</div>` : ''}
+      <div class="panel-fam-tag">${p.fam}${p.gender === 'M' ? ' · ♂' : p.gender === 'F' ? ' · ♀' : ''}</div>
+    </div>
+    ${p.bio ? `<div class="panel-section"><div class="panel-bio">"${p.bio}"</div></div>` : ''}
+    <div class="panel-actions">
+      ${focusId === p.id
+        ? `<button class="panel-action-btn secondary" id="unfocusBtn">Reset view</button>`
+        : `<button class="panel-action-btn" id="focusBtn">Make ${p.name.split(' ')[0]} the center</button>`}
+    </div>
+    <div class="panel-section">
+      <h3>Life</h3>
+      <div class="panel-stat-grid">
+        <div><div class="panel-stat-label">Years</div><div class="panel-stat-value">${years}</div></div>
+        <div><div class="panel-stat-label">${p.died ? 'Lived' : 'Age'}</div><div class="panel-stat-value">${age}</div></div>
+        <div><div class="panel-stat-label">Generation</div><div class="panel-stat-value">${getDepth(id) + 1}<span style="font-size:11px;color:var(--ink-dim);font-family:var(--sans);margin-left:6px;letter-spacing:0.1em">in ${p.fam}</span></div></div>
+        <div><div class="panel-stat-label">Location</div><div class="panel-stat-value" style="font-size:15px">${p.location || '—'}</div></div>
+      </div>
+    </div>
+    ${stories.length ? `
+      <div class="panel-section">
+        <h3>Timeline</h3>
+        ${stories.map(s => `
+          <div class="panel-timeline-item">
+            <div class="panel-timeline-year">${s.year}</div>
+            <div class="panel-timeline-content">
+              <div class="panel-timeline-title">${s.title}</div>
+              <div class="panel-timeline-desc">${s.desc}</div>
+            </div>
+          </div>`).join('')}
+      </div>` : ''}
+    <div class="panel-section">
+      <h3>In this family they are</h3>
+      <div class="kinship-list">
+        ${getKinshipSummary(id).map(group => {
+          const peopleList = group.people.map(person => {
+            const ci = person.name.match(/\d+/) ? person.name.match(/\d+/)[0] : person.name[0];
+            return `<div class="kin-person fam-${person.fam}" data-id="${person.id}">
+              <div class="kin-avatar">${ci}</div>
+              <div class="kin-name">${person.name}</div>
+            </div>`;
+          }).join('');
+          return `<div class="kin-group">
+            <div class="kin-label">${group.label}</div>
+            <div class="kin-people">${peopleList}</div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>
+  `;
+  panel.classList.add('show');
+  panelBackdrop.classList.add('show');
+
+  panelContent.querySelectorAll('.kin-person').forEach(el => {
+    el.addEventListener('click', () => openPerson(el.dataset.id));
+  });
+  const fb = panelContent.querySelector('#focusBtn');
+  if (fb) fb.addEventListener('click', () => {
+    focusId = id;
+    closePanel();
+    const v = document.querySelector('.tree-toolbar button.active[data-view]').dataset.view;
+    renderTree(v);
+    showToast(`${p.name} is now the center`);
+    playTone(550, 0.15, 0.05);
+  });
+  const ub = panelContent.querySelector('#unfocusBtn');
+  if (ub) ub.addEventListener('click', () => {
+    focusId = null;
+    closePanel();
+    const v = document.querySelector('.tree-toolbar button.active[data-view]').dataset.view;
+    renderTree(v);
+  });
+}
+
+document.getElementById('panelClose').addEventListener('click', closePanel);
+panelBackdrop.addEventListener('click', closePanel);
+function closePanel() {
+  panel.classList.remove('show');
+  panelBackdrop.classList.remove('show');
+}
+
+document.getElementById('focusClear').addEventListener('click', () => {
+  focusId = null;
+  const v = document.querySelector('.tree-toolbar button.active[data-view]').dataset.view;
+  renderTree(v);
+});
+
+const searchInput = document.getElementById('search');
+const searchResults = document.getElementById('searchResults');
+searchInput.addEventListener('input', () => {
+  const q = searchInput.value.toLowerCase().trim();
+  if (!q) { searchResults.classList.remove('show'); return; }
+  const matches = PEOPLE.filter(p =>
+    p.name.toLowerCase().includes(q) ||
+    (p.maiden_name && p.maiden_name.toLowerCase().includes(q)) ||
+    p.fam.toLowerCase().includes(q) ||
+    (p.role && p.role.toLowerCase().includes(q)) ||
+    (p.location && p.location.toLowerCase().includes(q)) ||
+    (p.bio && p.bio.toLowerCase().includes(q))
+  ).slice(0, 10);
+  if (!matches.length) {
+    searchResults.innerHTML = '<div class="search-item" style="cursor:default"><div><div class="name" style="color:var(--ink-dim)">No matches</div></div></div>';
+  } else {
+    searchResults.innerHTML = matches.map(p => {
+      const init = p.name.match(/\d+/) ? p.name.match(/\d+/)[0] : p.name[0];
+      const gSym = p.gender === 'M' ? '♂' : p.gender === 'F' ? '♀' : '';
+      return `<div class="search-item fam-${p.fam}" data-id="${p.id}">
+        <div class="avatar">${init}</div>
+        <div>
+          <div class="name">${p.name}</div>
+          <div class="meta">${p.fam}${gSym ? ' · ' + gSym : ''} · ${p.role || p.location || ''}</div>
+        </div>
+      </div>`;
+    }).join('');
+    searchResults.querySelectorAll('.search-item').forEach(el => {
+      if (!el.dataset.id) return;
+      el.addEventListener('click', () => {
+        if (!treeView.classList.contains('active')) enterTree('all');
+        searchInput.value = ''; searchResults.classList.remove('show');
+        setTimeout(() => openPerson(el.dataset.id), 400);
+      });
+    });
+  }
+  searchResults.classList.add('show');
+});
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('.search-wrap')) searchResults.classList.remove('show');
+});
+
+const minimapCanvas = document.getElementById('minimapCanvas');
+const minimapViewport = document.getElementById('minimapViewport');
+const minimapEl = document.getElementById('minimap');
+
+function renderMinimap() {
+  const ctx = minimapCanvas.getContext('2d');
+  const w = minimapCanvas.width, h = minimapCanvas.height;
+  ctx.clearRect(0, 0, w, h);
+
+  const ids = Object.keys(currentPositions);
+  if (!ids.length) return;
+  let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+  ids.forEach(id => {
+    const p = currentPositions[id];
+    minX = Math.min(minX, p.x); maxX = Math.max(maxX, p.x);
+    minY = Math.min(minY, p.y); maxY = Math.max(maxY, p.y);
+  });
+  const pad = 20;
+  const cw = (maxX - minX) || 1, ch = (maxY - minY) || 1;
+  const scale = Math.min((w - pad*2) / cw, (h - pad*2) / ch);
+
+  RELATIONS.forEach(r => {
+    if (!currentPositions[r.a] || !currentPositions[r.b]) return;
+    const a = currentPositions[r.a], b = currentPositions[r.b];
+    ctx.beginPath();
+    ctx.moveTo((a.x - minX) * scale + pad, (a.y - minY) * scale + pad);
+    ctx.lineTo((b.x - minX) * scale + pad, (b.y - minY) * scale + pad);
+    ctx.strokeStyle = r.cross ? '#c9a961' : 'rgba(232,227,211,0.12)';
+    ctx.lineWidth = r.cross ? 0.8 : 0.4;
+    ctx.stroke();
+  });
+
+  currentPeople.forEach(p => {
+    const pos = currentPositions[p.id];
+    if (!pos) return;
+    const x = (pos.x - minX) * scale + pad;
+    const y = (pos.y - minY) * scale + pad;
+    ctx.beginPath(); ctx.arc(x, y, 2.5, 0, Math.PI * 2);
+    ctx.fillStyle = FAM_COLORS[p.fam].hex;
+    if (p.id === focusId) {
+      ctx.fillStyle = '#e8c97a';
+      ctx.beginPath(); ctx.arc(x, y, 4, 0, Math.PI * 2);
+    }
+    ctx.fill();
+  });
+
+  minimapEl.dataset.minX = minX; minimapEl.dataset.minY = minY;
+  minimapEl.dataset.scale = scale; minimapEl.dataset.pad = pad;
+  updateMinimapViewport();
+}
+
+function updateMinimapViewport() {
+  if (!minimapEl.dataset.scale) return;
+  const minX = +minimapEl.dataset.minX, minY = +minimapEl.dataset.minY;
+  const scale = +minimapEl.dataset.scale, pad = +minimapEl.dataset.pad;
+  const vw = canvasWrap.clientWidth / zoom;
+  const vh = canvasWrap.clientHeight / zoom;
+  const vx = -panX / zoom;
+  const vy = -panY / zoom;
+  minimapViewport.style.left = ((vx - minX) * scale + pad) + 'px';
+  minimapViewport.style.top = ((vy - minY) * scale + pad) + 'px';
+  minimapViewport.style.width = (vw * scale) + 'px';
+  minimapViewport.style.height = (vh * scale) + 'px';
+}
+
+minimapEl.addEventListener('click', (e) => {
+  if (!minimapEl.dataset.scale) return;
+  const rect = minimapCanvas.getBoundingClientRect();
+  const mx = e.clientX - rect.left, my = e.clientY - rect.top;
+  const minX = +minimapEl.dataset.minX, minY = +minimapEl.dataset.minY;
+  const scale = +minimapEl.dataset.scale, pad = +minimapEl.dataset.pad;
+  const cx = (mx - pad) / scale + minX;
+  const cy = (my - pad) / scale + minY;
+  panX = canvasWrap.clientWidth/2 - cx * zoom;
+  panY = canvasWrap.clientHeight/2 - cy * zoom;
+  applyTransform();
+});
+
+const statsPanel = document.getElementById('statsPanel');
+const statsBody = document.getElementById('statsBody');
+document.getElementById('statsBtn').addEventListener('click', () => {
+  renderStats();
+  statsPanel.classList.add('show');
+});
+document.getElementById('statsClose').addEventListener('click', () => {
+  statsPanel.classList.remove('show');
+});
+
+function renderStats() {
+  const total = PEOPLE.length;
+  const alive = PEOPLE.filter(p => !p.died).length;
+  const famCounts = { watwani: 0, sidhwani: 0, makrani: 0 };
+  PEOPLE.forEach(p => famCounts[p.fam]++);
+  const maxFam = Math.max(...Object.values(famCounts));
+
+  const decades = {};
+  PEOPLE.forEach(p => {
+    const d = Math.floor(p.born / 10) * 10;
+    decades[d] = (decades[d] || 0) + 1;
+  });
+  const sortedDecades = Object.keys(decades).map(Number).sort((a,b)=>a-b);
+  const maxDecade = Math.max(...Object.values(decades));
+
+  const locations = {};
+  PEOPLE.forEach(p => {
+    const city = (p.location || '').split(',')[0].trim();
+    if (city) locations[city] = (locations[city] || 0) + 1;
+  });
+  const topCities = Object.entries(locations).sort((a,b)=>b[1]-a[1]).slice(0, 5);
+
+  const ages = PEOPLE.filter(p => !p.died).map(p => 2026 - p.born);
+  const avgAge = Math.round(ages.reduce((a,b)=>a+b,0) / ages.length);
+  const oldest = PEOPLE.filter(p => !p.died).sort((a,b)=>a.born-b.born)[0];
+  const youngest = PEOPLE.filter(p => !p.died).sort((a,b)=>b.born-a.born)[0];
+
+  const noGender = PEOPLE.filter(p => p.gender !== 'M' && p.gender !== 'F');
+  const noBirth = PEOPLE.filter(p => !p.born);
+  const noLocation = PEOPLE.filter(p => !p.location);
+
+  statsBody.innerHTML = `
+    <div class="stat-card">
+      <div class="h">The graph</div>
+      <div style="display:flex;gap:24px;align-items:baseline;">
+        <div><div class="stat-big">${total}</div><div style="font-size:10px;color:var(--ink-dim);letter-spacing:0.2em;text-transform:uppercase;margin-top:4px">people</div></div>
+        <div><div class="stat-big">${alive}</div><div style="font-size:10px;color:var(--ink-dim);letter-spacing:0.2em;text-transform:uppercase;margin-top:4px">living</div></div>
+        <div><div class="stat-big">${RELATIONS.length}</div><div style="font-size:10px;color:var(--ink-dim);letter-spacing:0.2em;text-transform:uppercase;margin-top:4px">links</div></div>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="h">By family</div>
+      <div class="stat-bars">
+        ${Object.entries(famCounts).map(([f, n]) => `
+          <div class="stat-bar fam-${f}">
+            <div class="lbl">${f}</div>
+            <div class="bar-bg"><div class="bar-fill" style="width:${(n/maxFam)*100}%"></div></div>
+            <div class="num">${n}</div>
+          </div>`).join('')}
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="h">Born by decade</div>
+      <div class="stat-bars">
+        ${sortedDecades.map(d => `
+          <div class="stat-bar" style="--bar-color:var(--gold)">
+            <div class="lbl" style="font-family:var(--serif);font-size:14px;color:var(--gold)">${d}s</div>
+            <div class="bar-bg"><div class="bar-fill" style="width:${(decades[d]/maxDecade)*100}%;background:var(--gold)"></div></div>
+            <div class="num">${decades[d]}</div>
+          </div>`).join('')}
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="h">Top cities</div>
+      <div class="stat-bars">
+        ${topCities.map(([c, n]) => `
+          <div class="stat-bar">
+            <div class="lbl">${c}</div>
+            <div class="bar-bg"><div class="bar-fill" style="width:${(n/topCities[0][1])*100}%;background:var(--ink-dim)"></div></div>
+            <div class="num">${n}</div>
+          </div>`).join('')}
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="h">People notes</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+        <div>
+          <div style="font-size:10px;letter-spacing:0.2em;text-transform:uppercase;color:var(--ink-dim)">Avg age</div>
+          <div style="font-family:var(--serif);font-size:24px;color:var(--ink);margin-top:4px">${avgAge}</div>
+        </div>
+        <div>
+          <div style="font-size:10px;letter-spacing:0.2em;text-transform:uppercase;color:var(--ink-dim)">Eldest living</div>
+          <div style="font-family:var(--serif);font-size:18px;color:var(--ink);margin-top:4px">${oldest.name}</div>
+          <div style="font-size:11px;color:var(--ink-dim)">${2026 - oldest.born} yrs</div>
+        </div>
+        <div>
+          <div style="font-size:10px;letter-spacing:0.2em;text-transform:uppercase;color:var(--ink-dim)">Youngest</div>
+          <div style="font-family:var(--serif);font-size:18px;color:var(--ink);margin-top:4px">${youngest.name}</div>
+          <div style="font-size:11px;color:var(--ink-dim)">${2026 - youngest.born} yrs</div>
+        </div>
+        <div>
+          <div style="font-size:10px;letter-spacing:0.2em;text-transform:uppercase;color:var(--ink-dim)">Cross-family</div>
+          <div style="font-family:var(--serif);font-size:24px;color:var(--gold-bright);margin-top:4px">${RELATIONS.filter(r=>r.cross).length}</div>
+        </div>
+      </div>
+    </div>
+
+    ${(noGender.length || noBirth.length) ? `
+    <div class="stat-card data-health">
+      <div class="h">Data to fill in</div>
+      ${noGender.length ? `
+        <div class="dh-row">
+          <div class="dh-icon">!</div>
+          <div class="dh-content">
+            <div class="dh-title">${noGender.length} ${noGender.length === 1 ? 'person needs' : 'people need'} gender set</div>
+            <div class="dh-sub">Without it, kinship reads "Parent" instead of Father/Mother. Add M or F to their row.</div>
+            <div class="dh-names">
+              ${noGender.slice(0, 8).map(p => `<span class="dh-name" data-id="${p.id}">${p.name}</span>`).join('')}
+              ${noGender.length > 8 ? `<span class="dh-more">+${noGender.length - 8} more</span>` : ''}
+            </div>
+          </div>
+        </div>` : ''}
+      ${noBirth.length ? `
+        <div class="dh-row">
+          <div class="dh-icon">!</div>
+          <div class="dh-content">
+            <div class="dh-title">${noBirth.length} ${noBirth.length === 1 ? 'person has' : 'people have'} no birth year</div>
+            <div class="dh-sub">Needed for the "By era" layout and the timeline scrubber.</div>
+            <div class="dh-names">
+              ${noBirth.slice(0, 8).map(p => `<span class="dh-name" data-id="${p.id}">${p.name}</span>`).join('')}
+            </div>
+          </div>
+        </div>` : ''}
+    </div>` : `
+    <div class="stat-card data-health-clean">
+      <div class="h">Data health</div>
+      <div style="font-family:var(--serif);font-style:italic;color:var(--gold-bright);font-size:16px">All people have gender and birth year set ✓</div>
+    </div>`}
+  `;
+
+  statsBody.querySelectorAll('.dh-name').forEach(el => {
+    el.addEventListener('click', () => {
+      statsPanel.classList.remove('show');
+      setTimeout(() => openPerson(el.dataset.id), 200);
+    });
+  });
+}
+
+const timelineBtn = document.getElementById('timelineBtn');
+const scrubber = document.getElementById('timelineScrubber');
+const tsInput = document.getElementById('tsInput');
+const tsYear = document.getElementById('tsYear');
+const tsFill = document.getElementById('tsFill');
+const tsThumb = document.getElementById('tsThumb');
+const tsEvents = document.getElementById('tsEvents');
+
+timelineBtn.addEventListener('click', () => {
+  timelineMode = !timelineMode;
+  timelineBtn.classList.toggle('active', timelineMode);
+  scrubber.classList.toggle('show', timelineMode);
+  if (timelineMode) {
+    populateTimelineEvents();
+    timelineYear = 2026; tsInput.value = 2026; updateTimelineDisplay();
+  }
+  const v = document.querySelector('.tree-toolbar button.active[data-view]').dataset.view;
+  if (treeView.classList.contains('active')) renderTree(v);
+});
+
+function populateTimelineEvents() {
+  const minY = +tsInput.min, maxY = +tsInput.max;
+  const events = [];
+  PEOPLE.forEach(p => {
+    events.push({ year: p.born, id: p.id });
+    if (p.died) events.push({ year: p.died, id: p.id });
+  });
+  tsEvents.innerHTML = events.map(e => {
+    const pct = ((e.year - minY) / (maxY - minY)) * 100;
+    return `<div class="ts-event-dot" style="left:${pct}%" data-year="${e.year}"></div>`;
+  }).join('');
+}
+
+function updateTimelineDisplay() {
+  timelineYear = +tsInput.value;
+  tsYear.textContent = timelineYear;
+  const minY = +tsInput.min, maxY = +tsInput.max;
+  const pct = ((timelineYear - minY) / (maxY - minY)) * 100;
+  tsFill.style.width = pct + '%';
+  tsThumb.style.left = pct + '%';
+  tsEvents.querySelectorAll('.ts-event-dot').forEach(d => {
+    d.classList.toggle('active', +d.dataset.year <= timelineYear);
+  });
+}
+
+tsInput.addEventListener('input', () => {
+  updateTimelineDisplay();
+  const v = document.querySelector('.tree-toolbar button.active[data-view]').dataset.view;
+  renderTree(v);
+});
+
+let audioCtx = null;
+let soundOn = false;
+const soundBtn = document.getElementById('soundBtn');
+soundBtn.addEventListener('click', () => {
+  soundOn = !soundOn;
+  soundBtn.classList.toggle('active', soundOn);
+  if (soundOn) {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    showToast('Sound on — click anything to hear');
+    playTone(440, 0.2, 0.05);
+  } else {
+    showToast('Sound off');
+  }
+});
+
+function playTone(freq, dur, vol = 0.05) {
+  if (!soundOn || !audioCtx) return;
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.frequency.value = freq;
+  osc.type = 'sine';
+  gain.gain.setValueAtTime(0, audioCtx.currentTime);
+  gain.gain.linearRampToValueAtTime(vol, audioCtx.currentTime + 0.02);
+  gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + dur);
+  osc.connect(gain); gain.connect(audioCtx.destination);
+  osc.start(); osc.stop(audioCtx.currentTime + dur);
+}
+
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2400);
+}
+
+function makeOrbit(id, count) {
+  const orbit = document.getElementById(id);
+  for (let i = 0; i < count; i++) {
+    const s = document.createElement('span');
+    const angle = (i / count) * Math.PI * 2;
+    const r = 80 + Math.random() * 30;
+    s.style.left = `calc(50% + ${Math.cos(angle) * r}px)`;
+    s.style.top = `calc(50% + ${Math.sin(angle) * r}px)`;
+    s.style.opacity = (0.4 + Math.random() * 0.4).toString();
+    s.style.animationDelay = (Math.random() * 8) + 's';
+    orbit.appendChild(s);
+  }
+}
+makeOrbit('orbit1', 10);
+makeOrbit('orbit2', 8);
+makeOrbit('orbit3', 9);
+
+const pcanvas = document.getElementById('particles');
+const pctx = pcanvas.getContext('2d');
+let particles = [];
+function resizeParticles() {
+  pcanvas.width = window.innerWidth;
+  pcanvas.height = window.innerHeight;
+}
+resizeParticles();
+window.addEventListener('resize', resizeParticles);
+
+for (let i = 0; i < 80; i++) {
+  particles.push({
+    x: Math.random() * window.innerWidth,
+    y: Math.random() * window.innerHeight,
+    vx: (Math.random() - 0.5) * 0.08,
+    vy: (Math.random() - 0.5) * 0.08,
+    size: Math.random() * 1.5 + 0.3,
+    opacity: Math.random() * 0.35 + 0.05,
+    twinkle: Math.random() * Math.PI * 2,
+    twinkleSpeed: 0.01 + Math.random() * 0.02,
+  });
+}
+
+function animateParticles() {
+  pctx.clearRect(0, 0, pcanvas.width, pcanvas.height);
+  particles.forEach(p => {
+    p.x += p.vx; p.y += p.vy;
+    p.twinkle += p.twinkleSpeed;
+    if (p.x < 0) p.x = pcanvas.width; if (p.x > pcanvas.width) p.x = 0;
+    if (p.y < 0) p.y = pcanvas.height; if (p.y > pcanvas.height) p.y = 0;
+    const op = p.opacity * (0.5 + 0.5 * Math.sin(p.twinkle));
+    pctx.beginPath();
+    pctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+    pctx.fillStyle = `rgba(232, 227, 211, ${op})`;
+    pctx.fill();
+  });
+  requestAnimationFrame(animateParticles);
+}
+animateParticles();
+
+window.addEventListener('keydown', (e) => {
+  if (e.target.tagName === 'INPUT') return;
+  if (e.key === 'Escape') {
+    if (settingsDialog.classList.contains('show')) closeSettings();
+    else if (panel.classList.contains('show')) closePanel();
+    else if (statsPanel.classList.contains('show')) statsPanel.classList.remove('show');
+    else if (treeView.classList.contains('active')) exitToGalaxy();
+    searchResults.classList.remove('show');
+  } else if (e.key === ' ' && galaxy.classList.contains('hidden') === false) {
+    e.preventDefault();
+    enterTree('all');
+  } else if (e.key === 'f' || e.key === 'F') {
+    if (treeView.classList.contains('active')) fitToView();
+  } else if (e.key === '+' || e.key === '=') {
+    if (treeView.classList.contains('active')) document.getElementById('zoomIn').click();
+  } else if (e.key === '-' || e.key === '_') {
+    if (treeView.classList.contains('active')) document.getElementById('zoomOut').click();
+  } else if (e.key === '/' || e.key === 's') {
+    e.preventDefault();
+    searchInput.focus();
+  } else if (e.key === 't' || e.key === 'T') {
+    timelineBtn.click();
+  } else if (e.key === '?') {
+    showToast('Keys: space, f, +/-, /, t, esc');
+  }
+});
+
+async function initApp() {
+  await loadConfig();
+  await loadFromSheet();
+  ensureFamilyColors();
+  DEPTHS = computeDepths();
+  updateGalaxyCounts();
+}
+
+function updateGalaxyCounts() {
+  const counts = { watwani: 0, sidhwani: 0, makrani: 0 };
+  PEOPLE.forEach(p => { if (counts[p.fam] !== undefined) counts[p.fam]++; });
+  const gens = [...new Set(PEOPLE.map(p => getDepth(p.id)))].length;
+  const crosses = RELATIONS.filter(r => r.cross).length;
+  if (document.getElementById('ct-watwani')) document.getElementById('ct-watwani').textContent = counts.watwani + ' people';
+  if (document.getElementById('ct-sidhwani')) document.getElementById('ct-sidhwani').textContent = counts.sidhwani + ' people';
+  if (document.getElementById('ct-makrani')) document.getElementById('ct-makrani').textContent = counts.makrani + ' people';
+  if (document.getElementById('gs-people')) document.getElementById('gs-people').textContent = PEOPLE.length;
+  if (document.getElementById('gs-gens')) document.getElementById('gs-gens').textContent = gens;
+  if (document.getElementById('gs-links')) document.getElementById('gs-links').textContent = RELATIONS.length;
+  if (document.getElementById('gs-marriages')) document.getElementById('gs-marriages').textContent = crosses;
+}
+
+showToast('Welcome — press ? for keyboard shortcuts');
+
+const settingsDialog = document.getElementById('settingsDialog');
+const settingsBackdrop = document.getElementById('settingsBackdrop');
+
+function openSettings() {
+  document.getElementById('cfg-sheet').value = SHEET_CONFIG.sheetId || '';
+  document.getElementById('cfg-people-tab').value = SHEET_CONFIG.peopleTab || 'People';
+  document.getElementById('cfg-rel-tab').value = SHEET_CONFIG.relationshipsTab || 'Relationships';
+  document.getElementById('cfg-stories-tab').value = SHEET_CONFIG.storiesTab || 'Stories';
+  const cur = SHEET_CONFIG.sheetId
+    ? `Currently connected to sheet: ${SHEET_CONFIG.sheetId.slice(0, 20)}…`
+    : 'Currently showing demo data — connect a sheet to load yours.';
+  document.getElementById('settingsCurrent').textContent = cur;
+  settingsDialog.classList.add('show');
+  settingsBackdrop.classList.add('show');
+}
+function closeSettings() {
+  settingsDialog.classList.remove('show');
+  settingsBackdrop.classList.remove('show');
+}
+
+document.getElementById('settingsBtn').addEventListener('click', openSettings);
+document.getElementById('settingsClose').addEventListener('click', closeSettings);
+settingsBackdrop.addEventListener('click', closeSettings);
+
+document.getElementById('settingsSave').addEventListener('click', async () => {
+  let sheetId = document.getElementById('cfg-sheet').value.trim();
+  sheetId = sheetId.replace(/^https:\/\/docs\.google\.com\/spreadsheets\/d\//, '').replace(/\/.*$/, '');
+  const newCfg = {
+    sheetId,
+    peopleTab: document.getElementById('cfg-people-tab').value.trim() || 'People',
+    relationshipsTab: document.getElementById('cfg-rel-tab').value.trim() || 'Relationships',
+    storiesTab: document.getElementById('cfg-stories-tab').value.trim() || 'Stories',
+  };
+  saveConfigLocal(newCfg);
+  showToast('Saved — reloading…');
+  setTimeout(() => window.location.reload(), 600);
+});
+
+document.getElementById('settingsClear').addEventListener('click', () => {
+  if (confirm('This will disconnect the Google Sheet and use demo data. Continue?')) {
+    try { localStorage.removeItem('familyTreeConfig'); } catch (e) {}
+    showToast('Cleared — reloading…');
+    setTimeout(() => window.location.reload(), 600);
+  }
+});
+
+document.getElementById('settingsTest').addEventListener('click', async () => {
+  const sheetId = document.getElementById('cfg-sheet').value.trim();
+  const peopleTab = document.getElementById('cfg-people-tab').value.trim() || 'People';
+  const relTab = document.getElementById('cfg-rel-tab').value.trim() || 'Relationships';
+  const storiesTab = document.getElementById('cfg-stories-tab').value.trim() || 'Stories';
+  const out = document.getElementById('settingsTestResult');
+  out.className = 'settings-test-result show';
+  out.innerHTML = '<div class="check-line"><span class="mark">…</span><div>Testing connection</div></div>';
+
+  if (!sheetId) {
+    out.classList.add('bad');
+    out.innerHTML = '<div class="check-line"><span class="mark">✗</span><div><strong>No sheet ID</strong> — paste one in above.</div></div>';
+    return;
+  }
+
+  const cleanId = sheetId.replace(/^https:\/\/docs\.google\.com\/spreadsheets\/d\//, '').replace(/\/.*$/, '');
+  if (cleanId !== sheetId) {
+    document.getElementById('cfg-sheet').value = cleanId;
+  }
+
+  const checks = [];
+  const testTab = async (label, tabName) => {
+    const url = `https://docs.google.com/spreadsheets/d/${cleanId}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(tabName)}`;
+    try {
+      const r = await fetch(url);
+      if (!r.ok) {
+        if (r.status === 404) return { ok: false, label, msg: `Sheet not found — check the ID` };
+        if (r.status === 401 || r.status === 403) return { ok: false, label, msg: `Not published to web (status ${r.status})` };
+        return { ok: false, label, msg: `HTTP ${r.status}` };
+      }
+      const text = await r.text();
+      if (text.trim().startsWith('<')) return { ok: false, label, msg: `Got HTML — sheet isn't published to web` };
+      if (!text.trim()) return { ok: false, label, msg: `Tab "${tabName}" is empty or doesn't exist` };
+      const rows = parseCSV(text);
+      if (rows.length === 0) return { ok: false, label, msg: `Tab "${tabName}" has no data rows` };
+      const headers = Object.keys(rows[0]);
+      return { ok: true, label, msg: `${rows.length} rows · columns: ${headers.slice(0, 5).join(', ')}${headers.length > 5 ? '…' : ''}` };
+    } catch (e) {
+      return { ok: false, label, msg: `Network error: ${e.message}` };
+    }
+  };
+
+  const results = await Promise.all([
+    testTab('People', peopleTab),
+    testTab('Relationships', relTab),
+    testTab('Stories', storiesTab),
+  ]);
+
+  const peopleOk = results[0].ok;
+  const someOk = results.some(r => r.ok);
+  out.className = 'settings-test-result show ' + (peopleOk ? 'ok' : 'bad');
+
+  let html = '';
+  if (peopleOk) {
+    html += '<div class="check-line"><span class="mark">✓</span><div><strong>Connection works!</strong> Click Save & reload.</div></div>';
+  } else {
+    html += '<div class="check-line"><span class="mark">✗</span><div><strong>Cannot load People tab</strong> — this is required.</div></div>';
+  }
+  results.forEach(r => {
+    html += `<div class="check-line"><span class="mark">${r.ok ? '✓' : '✗'}</span><div><strong>${r.label}:</strong> ${r.msg}</div></div>`;
+  });
+
+  if (!peopleOk) {
+    html += '<div class="check-line" style="margin-top:10px;border-top:1px solid rgba(216,90,48,0.2);padding-top:10px"><span class="mark">→</span><div>Common fixes: (1) Did you do <em>File → Share → Publish to web → CSV → Publish</em> in your sheet? (2) Is the tab name spelled exactly right (case-sensitive)? (3) Is the Sheet ID just the long string between <code>/d/</code> and <code>/edit</code>?</div></div>';
+  }
+  out.innerHTML = html;
+});
+
+initApp();
+</script>
+</body>
+</html>

@@ -1,0 +1,462 @@
+{
+  "exported_at": "2026-09-23T14:41:08.720Z",
+  "source": "google-sheet:18JlWreivwih4dwEjxgC1tFvjltLEDu72uQnTfx2oNS4",
+  "families": [
+    "makrani",
+    "sidhwani",
+    "watwani"
+  ],
+  "people": [
+    {
+      "id": "W01",
+      "name": "Yash Watwani",
+      "family": "watwani",
+      "maiden_name": "",
+      "born_family": "watwani",
+      "gender": "",
+      "role": "",
+      "born": 1995,
+      "died": null,
+      "location": "Gwalior",
+      "photo_url": "",
+      "bio": ""
+    },
+    {
+      "id": "W02",
+      "name": "Hitanshi Watwani",
+      "family": "watwani",
+      "maiden_name": "",
+      "born_family": "watwani",
+      "gender": "",
+      "role": "",
+      "born": 2000,
+      "died": null,
+      "location": "Gwalior",
+      "photo_url": "",
+      "bio": ""
+    },
+    {
+      "id": "W03",
+      "name": "Amar Watwani",
+      "family": "watwani",
+      "maiden_name": "",
+      "born_family": "watwani",
+      "gender": "",
+      "role": "",
+      "born": 1970,
+      "died": null,
+      "location": "Gwalior",
+      "photo_url": "",
+      "bio": ""
+    },
+    {
+      "id": "W04",
+      "name": "Reema Watwani",
+      "family": "watwani",
+      "maiden_name": "Reeta",
+      "born_family": "sidhwani",
+      "gender": "",
+      "role": "",
+      "born": 1975,
+      "died": null,
+      "location": "Gwalior",
+      "photo_url": "",
+      "bio": ""
+    },
+    {
+      "id": "W05",
+      "name": "Piyush Watwani",
+      "family": "watwani",
+      "maiden_name": "",
+      "born_family": "watwani",
+      "gender": "",
+      "role": "",
+      "born": 2008,
+      "died": null,
+      "location": "Gwalior",
+      "photo_url": "",
+      "bio": ""
+    },
+    {
+      "id": "W06",
+      "name": "Manoj Watwani",
+      "family": "watwani",
+      "maiden_name": "",
+      "born_family": "watwani",
+      "gender": "",
+      "role": "",
+      "born": null,
+      "died": 2020,
+      "location": "Gwalior",
+      "photo_url": "",
+      "bio": ""
+    },
+    {
+      "id": "W07",
+      "name": "Vaishali Watwani",
+      "family": "watwani",
+      "maiden_name": "",
+      "born_family": "watwani",
+      "gender": "",
+      "role": "",
+      "born": null,
+      "died": null,
+      "location": "Gwalior",
+      "photo_url": "",
+      "bio": ""
+    },
+    {
+      "id": "W08",
+      "name": "Archie Watwani",
+      "family": "watwani",
+      "maiden_name": "",
+      "born_family": "watwani",
+      "gender": "",
+      "role": "",
+      "born": 2003,
+      "died": null,
+      "location": "Gwalior",
+      "photo_url": "",
+      "bio": ""
+    },
+    {
+      "id": "W09",
+      "name": "Komal Watwani",
+      "family": "watwani",
+      "maiden_name": "",
+      "born_family": "watwani",
+      "gender": "",
+      "role": "",
+      "born": null,
+      "died": null,
+      "location": "Gwalior",
+      "photo_url": "",
+      "bio": ""
+    },
+    {
+      "id": "W10",
+      "name": "Shiv Watwani",
+      "family": "watwani",
+      "maiden_name": "",
+      "born_family": "watwani",
+      "gender": "",
+      "role": "",
+      "born": 1972,
+      "died": 2024,
+      "location": "Gwalior",
+      "photo_url": "",
+      "bio": ""
+    },
+    {
+      "id": "W11",
+      "name": "Ankit Watwani",
+      "family": "watwani",
+      "maiden_name": "",
+      "born_family": "watwani",
+      "gender": "",
+      "role": "",
+      "born": 1995,
+      "died": null,
+      "location": "Gwalior",
+      "photo_url": "",
+      "bio": ""
+    },
+    {
+      "id": "W12",
+      "name": "Rahul Watwani",
+      "family": "watwani",
+      "maiden_name": "",
+      "born_family": "watwani",
+      "gender": "",
+      "role": "",
+      "born": null,
+      "died": 2014,
+      "location": "Gwalior",
+      "photo_url": "",
+      "bio": ""
+    },
+    {
+      "id": "W13",
+      "name": "Narayan Das Watwani",
+      "family": "watwani",
+      "maiden_name": "",
+      "born_family": "watwani",
+      "gender": "",
+      "role": "",
+      "born": null,
+      "died": null,
+      "location": "Gwalior",
+      "photo_url": "",
+      "bio": ""
+    },
+    {
+      "id": "W14",
+      "name": "Savitri Watwani",
+      "family": "watwani",
+      "maiden_name": "",
+      "born_family": "watwani",
+      "gender": "",
+      "role": "",
+      "born": null,
+      "died": null,
+      "location": "Gwalior",
+      "photo_url": "",
+      "bio": ""
+    },
+    {
+      "id": "W15",
+      "name": "Divisha Watwani",
+      "family": "watwani",
+      "maiden_name": "Honey",
+      "born_family": "makrani",
+      "gender": "",
+      "role": "",
+      "born": 1997,
+      "died": null,
+      "location": "Gwalior",
+      "photo_url": "",
+      "bio": ""
+    },
+    {
+      "id": "M01",
+      "name": "Mamta Makrani",
+      "family": "makrani",
+      "maiden_name": "",
+      "born_family": "makrani",
+      "gender": "",
+      "role": "",
+      "born": null,
+      "died": null,
+      "location": "Gwalior",
+      "photo_url": "",
+      "bio": ""
+    },
+    {
+      "id": "M02",
+      "name": "Laxman Makrani",
+      "family": "makrani",
+      "maiden_name": "",
+      "born_family": "makrani",
+      "gender": "",
+      "role": "",
+      "born": null,
+      "died": null,
+      "location": "Gwalior",
+      "photo_url": "",
+      "bio": ""
+    },
+    {
+      "id": "M03",
+      "name": "Nikhil Makrani",
+      "family": "makrani",
+      "maiden_name": "",
+      "born_family": "makrani",
+      "gender": "",
+      "role": "",
+      "born": null,
+      "died": null,
+      "location": "Gwalior",
+      "photo_url": "",
+      "bio": ""
+    },
+    {
+      "id": "S01",
+      "name": "Rajesh Sidhwani",
+      "family": "sidhwani",
+      "maiden_name": "",
+      "born_family": "sidhwani",
+      "gender": "",
+      "role": "",
+      "born": null,
+      "died": null,
+      "location": "Banda",
+      "photo_url": "",
+      "bio": ""
+    },
+    {
+      "id": "S02",
+      "name": "Neha Sidhwani",
+      "family": "sidhwani",
+      "maiden_name": "",
+      "born_family": "sidhwani",
+      "gender": "",
+      "role": "",
+      "born": null,
+      "died": null,
+      "location": "Banda",
+      "photo_url": "",
+      "bio": ""
+    },
+    {
+      "id": "S03",
+      "name": "Kanika Sidhwani",
+      "family": "sidhwani",
+      "maiden_name": "",
+      "born_family": "sidhwani",
+      "gender": "",
+      "role": "",
+      "born": null,
+      "died": null,
+      "location": "Banda",
+      "photo_url": "",
+      "bio": ""
+    },
+    {
+      "id": "S04",
+      "name": "Bhumika Sidhwani",
+      "family": "sidhwani",
+      "maiden_name": "",
+      "born_family": "sidhwani",
+      "gender": "",
+      "role": "",
+      "born": null,
+      "died": null,
+      "location": "Banda",
+      "photo_url": "",
+      "bio": ""
+    },
+    {
+      "id": "S05",
+      "name": "Bhavika Sidhwani",
+      "family": "sidhwani",
+      "maiden_name": "",
+      "born_family": "sidhwani",
+      "gender": "",
+      "role": "",
+      "born": null,
+      "died": null,
+      "location": "Banda",
+      "photo_url": "",
+      "bio": ""
+    }
+  ],
+  "relations": [
+    {
+      "person_a": "W03",
+      "person_b": "W01",
+      "type": "parent",
+      "year": null
+    },
+    {
+      "person_a": "W03",
+      "person_b": "W02",
+      "type": "parent",
+      "year": null
+    },
+    {
+      "person_a": "W03",
+      "person_b": "W04",
+      "type": "spouse",
+      "year": 1994
+    },
+    {
+      "person_a": "W04",
+      "person_b": "W01",
+      "type": "parent",
+      "year": null
+    },
+    {
+      "person_a": "W04",
+      "person_b": "W02",
+      "type": "parent",
+      "year": null
+    },
+    {
+      "person_a": "W13",
+      "person_b": "W03",
+      "type": "parent",
+      "year": null
+    },
+    {
+      "person_a": "W14",
+      "person_b": "W03",
+      "type": "parent",
+      "year": null
+    },
+    {
+      "person_a": "W13",
+      "person_b": "W06",
+      "type": "parent",
+      "year": null
+    },
+    {
+      "person_a": "W14",
+      "person_b": "W06",
+      "type": "parent",
+      "year": null
+    },
+    {
+      "person_a": "W13",
+      "person_b": "W10",
+      "type": "parent",
+      "year": null
+    },
+    {
+      "person_a": "W14",
+      "person_b": "W10",
+      "type": "parent",
+      "year": null
+    },
+    {
+      "person_a": "W13",
+      "person_b": "W14",
+      "type": "spouse",
+      "year": null
+    },
+    {
+      "person_a": "W10",
+      "person_b": "W11",
+      "type": "parent",
+      "year": null
+    },
+    {
+      "person_a": "W09",
+      "person_b": "W11",
+      "type": "parent",
+      "year": null
+    },
+    {
+      "person_a": "W10",
+      "person_b": "W12",
+      "type": "parent",
+      "year": null
+    },
+    {
+      "person_a": "W09",
+      "person_b": "W12",
+      "type": "parent",
+      "year": null
+    },
+    {
+      "person_a": "W09",
+      "person_b": "W10",
+      "type": "spouse",
+      "year": 1994
+    },
+    {
+      "person_a": "W06",
+      "person_b": "W05",
+      "type": "parent",
+      "year": null
+    },
+    {
+      "person_a": "W07",
+      "person_b": "W08",
+      "type": "parent",
+      "year": null
+    },
+    {
+      "person_a": "W06",
+      "person_b": "W07",
+      "type": "spouse",
+      "year": 2003
+    },
+    {
+      "person_a": "W01",
+      "person_b": "W15",
+      "type": "spouse",
+      "year": 2025
+    }
+  ],
+  "stories": []
+}

@@ -1,0 +1,46 @@
+#  Netlify configuration.
+#  There is no build step — this is plain HTML, CSS and JavaScript.
+
+[build]
+  publish = "."
+  command = ""
+
+# Never ship the throwaway mock harness or the migration tooling.
+[build.processing]
+  skip_processing = true
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    X-Frame-Options = "SAMEORIGIN"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "geolocation=(), microphone=(), camera=()"
+
+# The data file changes whenever you re-export, so never let it go stale.
+[[headers]]
+  for = "/data/*"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+# config.js holds your Supabase URL; it must not be cached hard either.
+[[headers]]
+  for = "/config.js"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=3600"
+
+# Keep the mock harness and the sheet migration script off the live site.
+[[redirects]]
+  from = "/_mock-test.html"
+  to = "/"
+  status = 404
+
+[[redirects]]
+  from = "/tools/*"
+  to = "/"
+  status = 404
