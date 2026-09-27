@@ -8,6 +8,34 @@ No build step, no npm, no framework. Plain HTML, CSS and JavaScript modules.
 
 ---
 
+## Project status
+
+This is already set up and live. If you're picking this up fresh — a new
+machine, a new Claude Code session, whatever — here's what already exists so
+you don't redo it:
+
+| | |
+|---|---|
+| **Code** | <https://github.com/yashwatwani/family-tree> (public), branch `main` |
+| **Live site** | <https://watwani-family.netlify.app>, auto-deploys on every push to `main` |
+| **Database** | Supabase project `watwani-family` (ref `bvlwcofqykcvxarwexrx`), org "yashwatwani's Org" |
+| **Editing** | Unlocked with a passcode only the family has — not stored anywhere in this repo or known to any AI session, including this one |
+
+`config.js` already has the live Supabase URL and publishable key committed —
+that's intentional and safe (see *Is it safe to publish that key?* below), so
+you should **not** need to redo the Supabase steps unless you're deliberately
+starting a second, separate tree.
+
+If Netlify shows *"Skipped due to account credit usage exceeded"* on a deploy,
+that's the free-tier monthly credit limit, not a bug — it resets on the 1st of
+each month. Check `netlify api getSite` on the site id, or just wait a few
+days; nothing needs fixing in the code.
+
+See `CLAUDE.md` for the fuller technical handoff notes (architecture, gotchas,
+conventions) aimed at an AI assistant working on this next.
+
+---
+
 ## Run it on your own machine
 
 Browsers block a page from reading local files, so open it through a tiny server
