@@ -178,7 +178,9 @@ async function main() {
 
 // ── SQL seed ─────────────────────────────────────────────────────────────────
 
-const q = v => (v === null || v === undefined || v === '' ? 'null' : `'${String(v).replace(/'/g, "''")}'`);
+// Text columns are `not null default ''`, so a blank value must be written as
+// the empty string, not SQL null — null is only for the two nullable ints below.
+const q = v => (v === null || v === undefined ? "''" : `'${String(v).replace(/'/g, "''")}'`);
 const qn = v => (v === null || v === undefined || v === '' ? 'null' : String(parseInt(v, 10)));
 
 function buildSeedSQL(s) {
